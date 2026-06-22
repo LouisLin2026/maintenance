@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>BFY 工務報工系統 · 小福🐠</title>
 <style>
 :root{--navy:#0E5C63;--navy2:#0a474d;--amber:#E08D2B;--bg:#f4f7f8;--card:#fff;--line:#dfe7e8;--text:#1f2933;--mut:#6b7785;--ok:#1f9d57;--bad:#c0392b;--blue:#1c5fb0}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px}
-header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center}
-header .t{font-size:17px;font-weight:700}header .t small{font-weight:400;opacity:.8;font-size:12px}
-header button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit}
-main{padding:14px;max-width:720px;margin:0 auto;padding-bottom:50px}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:13px 16px;position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center}
+header .t{font-size:16px;font-weight:700}header .t small{font-weight:400;opacity:.85;font-size:12px}
+header button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;margin-left:6px}
+main{padding:14px;max-width:760px;margin:0 auto;padding-bottom:50px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
 .card h3{margin:0 0 12px;font-size:15px;color:var(--navy)}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px;font-weight:600}
@@ -20,311 +18,333 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy)}
 .row{display:flex;gap:10px}.row>*{flex:1}
 button.act{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:14px;font-size:16px;font-weight:700;width:100%;font-family:inherit;margin-top:14px}
 button.act:active{background:var(--navy2)}button.act.done{background:var(--ok)}
-button.sec{background:#eef3f2;color:var(--navy);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-weight:600;font-family:inherit;font-size:14px}
+button.sec{background:#eef3f2;color:var(--navy);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-weight:600;font-family:inherit;font-size:13px}
+button.mini{background:#fff;border:1px solid var(--line);border-radius:7px;padding:5px 9px;font-size:12px;font-family:inherit;color:var(--navy);font-weight:600}
+button.danger{background:#fbe9e7;color:var(--bad);border:1px solid #f3c9c3}
 .big{font-size:20px;font-weight:800;color:var(--navy)}
-.matline{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}
-.matline>div{flex:1}.matline .qy{flex:0 0 70px}.matline .rm{flex:0 0 36px}
+.matline{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}.matline>div{flex:1}.matline .qy{flex:0 0 70px}.matline .rm{flex:0 0 36px}
 .rm button{background:#fbe9e7;color:var(--bad);border:0;border-radius:8px;width:36px;height:44px;font-size:18px}
 .wo{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px;background:#fff}
 .wo .id{font-weight:700;color:var(--navy)}.wo .meta{font-size:12px;color:var(--mut);margin-top:3px}
 .pill{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;display:inline-block}
-.s-待派工{background:#eceff1;color:#546e7a}.s-進行中{background:#e3f0ff;color:var(--blue)}.s-已完成{background:#e6f6ec;color:var(--ok)}.s-待料{background:#fff3e0;color:#b45309}
-.src-保養{background:#e3f0ff;color:var(--blue)}.src-維修{background:#fdecea;color:var(--bad)}.src-優化{background:#f3e8ff;color:#7b3fb5}
-.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 4px;font-weight:700;color:var(--mut);font-family:inherit;font-size:14px}
+.s-待派工{background:#eceff1;color:#546e7a}.s-已派工{background:#fff8e1;color:#a17400}.s-進行中{background:#e3f0ff;color:var(--blue)}.s-已完成{background:#e6f6ec;color:var(--ok)}.s-待料{background:#fff3e0;color:#b45309}
+.src-保養{background:#e3f0ff;color:var(--blue)}.src-維修{background:#fdecea;color:var(--bad)}.src-優化{background:#f3e8ff;color:#7b3fb5}.src-故障叫修{background:#fdecea;color:var(--bad)}
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;font-weight:700;color:var(--mut);font-family:inherit;font-size:13px;white-space:nowrap}
 .tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut)}td.n,th.n{text-align:right}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--mut)}td.n,th.n{text-align:right}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:12px 20px;border-radius:24px;font-size:15px;z-index:60;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}.toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
-.hide{display:none}.hint{font-size:12px;color:var(--mut);line-height:1.6;margin-top:6px}
-.center{text-align:center}.mut{color:var(--mut)}
-.qrgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.qrcell{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
-.qrcell .lbl{font-size:11px;font-weight:700;color:var(--navy);margin-top:4px;word-break:break-all}
-.qrcell .nm{font-size:10px;color:var(--mut)}
-.landing{max-width:420px;margin:8vh auto;text-align:center}
-.landing .logo{font-size:54px}.landing h1{color:var(--navy);margin:6px 0}
-.landing button{width:100%;padding:18px;font-size:18px;font-weight:800;border-radius:12px;border:0;margin-top:14px;font-family:inherit}
+.hide{display:none}.hint{font-size:12px;color:var(--mut);line-height:1.6;margin-top:6px}.center{text-align:center}.mut{color:var(--mut)}
+.qrgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.qrcell{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
+.qrcell .lbl{font-size:11px;font-weight:700;color:var(--navy);margin-top:4px;word-break:break-all}.qrcell .nm{font-size:10px;color:var(--mut)}
+.landing{max-width:440px;margin:7vh auto;text-align:center}.landing .logo{font-size:52px}.landing h1{color:var(--navy);margin:6px 0}
+.landing button{width:100%;padding:17px;font-size:18px;font-weight:800;border-radius:12px;border:0;margin-top:12px;font-family:inherit}
 .b-eng{background:var(--navy);color:#fff}.b-adm{background:#fff;color:var(--navy);border:2px solid var(--navy)!important}
-@media print{header,.tabs,.noprint{display:none!important}.qrgrid{grid-template-columns:repeat(3,1fr)}.qrcell{break-inside:avoid}}
+.namegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.namegrid button{padding:18px;font-size:17px;font-weight:700;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--navy);font-family:inherit}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}.kpi .b{flex:1;min-width:90px;background:#f0f6f5;border-radius:10px;padding:12px;text-align:center}.kpi .b .v{font-size:22px;font-weight:800;color:var(--navy)}.kpi .b .l{font-size:12px;color:var(--mut)}
+@media print{header,.tabs,.noprint{display:none!important}.qrcell{break-inside:avoid}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-</head>
-<body>
-<div id="app"></div>
-<div id="toast" class="toast"></div>
+</head><body>
+<div id="app"></div><div id="toast" class="toast"></div>
 <script>
 const CFG={apiKey:"AIzaSyBBxnHJ2dElY6fJkkx-o7oHFJJBz7CbeYo",authDomain:"evaluation-survey-form.firebaseapp.com",databaseURL:"https://evaluation-survey-form-default-rtdb.firebaseio.com",projectId:"evaluation-survey-form",storageBucket:"evaluation-survey-form.firebasestorage.app",messagingSenderId:"884166116394",appId:"1:884166116394:web:92a505b03ba5e5ed31ef53"};
-const SEED_EQ=[{"id": "BG_01PK3B", "name": "立式給袋機", "line": "包裝線", "status": "使用中"}, {"id": "CM_01PR2S", "name": "薯片機B", "line": "米片線", "status": "使用中"}, {"id": "CM_02PR2S", "name": "薯片機C", "line": "米片線", "status": "使用中"}, {"id": "CM_03PR2S", "name": "薯片機D", "line": "米片線", "status": "使用中"}, {"id": "CM_04PR2S", "name": "薯片機E", "line": "米片線", "status": "使用中"}, {"id": "CM_05PR2S", "name": "薯片機F", "line": "米片線", "status": "使用中"}, {"id": "CM_06PR2S", "name": "薯片機G", "line": "米片線", "status": "使用中"}, {"id": "CM_07PR2S", "name": "HMS-25 米片機", "line": "米片線", "status": "停用"}, {"id": "CP_01PK3B", "name": "唐亞V230 高解析碳帶印刷機", "line": "包裝線", "status": "使用中"}, {"id": "CR_01RF2S", "name": "角柱型粉碎機", "line": "米花線", "status": "使用中"}, {"id": "CS_01PK3P", "name": "半自動封箱機A", "line": "包裝線", "status": "使用中"}, {"id": "CS_02PK3P", "name": "半自動封箱機B", "line": "包裝線", "status": "使用中"}, {"id": "CS_03PK3P", "name": "半自動封箱機C", "line": "包裝線", "status": "使用中"}, {"id": "CT_1TP1E", "name": "組織蛋白帶式輸送切斷機", "line": "TVP", "status": "停用"}, {"id": "CV_01PR2S", "name": "輸送機 (薯片線-1)", "line": "米片線", "status": "使用中"}, {"id": "CV_02PR2S", "name": "可調式輸送機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "CV_03RF2S", "name": "可調式輸送機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "CV_04RF2S", "name": "輸送機 (米花線-1)", "line": "米花線", "status": "使用中"}, {"id": "CV_05PK3B", "name": "輸送機 (立式包裝機A)", "line": "包裝線", "status": "使用中"}, {"id": "CV_06PK3B", "name": "輸送機 (立式包裝機B)", "line": "包裝線", "status": "使用中"}, {"id": "CV_07PK3B", "name": "輸送機 (給袋)", "line": "包裝線", "status": "使用中"}, {"id": "CW_01PK3B", "name": "重檢機A", "line": "包裝線", "status": "使用中"}, {"id": "CW_02PK3B", "name": "重檢機B", "line": "包裝線", "status": "使用中"}, {"id": "CW_03PK3B", "name": "重檢機C", "line": "包裝線", "status": "使用中"}, {"id": "DM_01PR2S", "name": "滾桶攪拌機 MX-60型", "line": "米片線", "status": "使用中"}, {"id": "DM_02PR2S", "name": "雙滾筒調味機", "line": "米片線", "status": "使用中"}, {"id": "DM_03RF2S", "name": "旋轉式調味機-1 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "DM_04RF2S", "name": "旋轉式調味機-2 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "DM_05RF2S", "name": "加熱滾桶攪拌罐 300L", "line": "米花線", "status": "使用中"}, {"id": "DM_06RF2S", "name": "滾桶攪拌機 3號", "line": "米花線", "status": "使用中"}, {"id": "DM_07RF2S", "name": "滾桶攪拌機-C", "line": "米花線", "status": "使用中"}, {"id": "EL_01PR2S", "name": "提升機 (薯片線-1)", "line": "米片線", "status": "使用中"}, {"id": "EL_02PR2S", "name": "提升機 (薯片線-2)", "line": "米片線", "status": "使用中"}, {"id": "EL_03RF2S", "name": "提升機 (米花線-1)", "line": "米花線", "status": "使用中"}, {"id": "EL_04RF2S", "name": "提升機 (米花線-2)", "line": "米花線", "status": "使用中"}, {"id": "EL_05RF2S", "name": "提升機 (米花線-3)", "line": "米花線", "status": "使用中"}, {"id": "EL_06RF2S", "name": "提升機 (米花線-3)", "line": "米花線", "status": "使用中"}, {"id": "EL_07PK3B", "name": "提升機 (立式包裝機A-1)", "line": "包裝線", "status": "使用中"}, {"id": "EL_08PK3B", "name": "提升機 (立式包裝機A-2)", "line": "包裝線", "status": "使用中"}, {"id": "EL_09PK3B", "name": "提升機 (立式包裝機B-1)", "line": "包裝線", "status": "使用中"}, {"id": "EL_10PK3B", "name": "提升機 (立式包裝機B-2)", "line": "包裝線", "status": "使用中"}, {"id": "EL_11PK3B", "name": "提升機 (給袋)", "line": "包裝線", "status": "使用中"}, {"id": "EX_01RF1E", "name": "成型機A", "line": "米花線", "status": "使用中"}, {"id": "EX_02RF1E", "name": "成型機B", "line": "米花線", "status": "使用中"}, {"id": "EX_03RF1E", "name": "成型機C", "line": "米花線", "status": "使用中"}, {"id": "EX_04RF1E", "name": "成型機D", "line": "米花線", "status": "停用"}, {"id": "FB_01RF1E", "name": "佛柏格混合機A", "line": "米花線", "status": "停用"}, {"id": "FB_02RF1E", "name": "佛博格混合機B", "line": "米花線", "status": "停用"}, {"id": "FL_01TP1E", "name": "注餡機", "line": "TVP", "status": "停用"}, {"id": "LS_01RF2S", "name": "噴液機二流體式 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "MD_01PK3B", "name": "喉管式金屬檢出機", "line": "包裝線", "status": "使用中"}, {"id": "MD_02PK3B", "name": "水平式金屬檢出機", "line": "包裝線", "status": "使用中"}, {"id": "MP_01RF1G", "name": "微粉碎機A", "line": "米花線", "status": "停用"}, {"id": "MP_02RF1G", "name": "微粉碎機B", "line": "米花線", "status": "使用中"}, {"id": "OS_01PR2S", "name": "加熱噴油機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "OS_02RF2S", "name": "自動線噴油機 1000型E", "line": "米花線", "status": "13"}, {"id": "OS_03RF2S", "name": "加熱噴油機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "OS_04RF2S", "name": "加熱噴油機 (5號)", "line": "米花線", "status": "使用中"}, {"id": "OV_01PR2S", "name": "三層電烤箱", "line": "米片線", "status": "11"}, {"id": "OV_02RF2S", "name": "連續式乾燥機", "line": "米花線", "status": "14"}, {"id": "OV_03RF2S", "name": "熱風乾燥機 10號", "line": "米花線", "status": "使用中"}, {"id": "OV_04RF2S", "name": "熱風乾燥機 14號", "line": "米花線", "status": "使用中"}, {"id": "OV_05RF2S", "name": "熱風乾燥機 (烤箱3號)", "line": "米花線", "status": "使用中"}, {"id": "OV_06RF2S", "name": "不鏽鋼熱風乾燥機 (烤箱11號)", "line": "米花線", "status": "使用中"}, {"id": "OV_07RF2S", "name": "旋風式烤箱", "line": "米花線", "status": "停用"}, {"id": "PD_01PR2S", "name": "震動灑粉機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "PD_02RF2S", "name": "震動灑粉機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "PF_01TP1E", "name": "包枕成型機(東定)", "line": "TVP", "status": "停用"}, {"id": "SL_01PK3B", "name": "連續封口機A", "line": "包裝線", "status": "使用中"}, {"id": "SL_02PK3B", "name": "連續封口機B", "line": "包裝線", "status": "使用中"}, {"id": "SR_01RF3B", "name": "震動篩選機", "line": "米花線", "status": "使用中"}, {"id": "TB_01PK3P", "name": "成品轉盤", "line": "包裝線", "status": "使用中"}, {"id": "VB_01PR2S", "name": "震動機給料機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "VB_02RF2S", "name": "震動整列機A", "line": "米花線", "status": "使用中"}, {"id": "VB_03RF2S", "name": "震動機", "line": "米花線", "status": "使用中"}, {"id": "VB_04RF2S", "name": "震動機給料機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "VF_01PK3B", "name": "立式包裝機A", "line": "包裝線", "status": "15"}, {"id": "VF_02PK3B", "name": "立式包裝機B", "line": "包裝線", "status": "15"}], SEED_MAT=[{"id": "BR01", "name": "深溝球軸承", "cat": "BR", "unit": "個", "brand": "NSK / NTN / KOYO", "model": "6000/6200/6300 系列"}, {"id": "BR02", "name": "含座軸承(臥式 UCP)", "cat": "BR", "unit": "個", "brand": "NSK / FYH / ASAHI", "model": "UCP204~UCP210"}, {"id": "BR03", "name": "含座軸承(立式 UCF/UCFL)", "cat": "BR", "unit": "個", "brand": "NSK / FYH", "model": "UCF/UCFL 系列"}, {"id": "BR04", "name": "自動調心軸承", "cat": "BR", "unit": "個", "brand": "NSK / NTN", "model": "1200/2200 系列"}, {"id": "BR05", "name": "聯軸器(梅花/彈性)", "cat": "BR", "unit": "個", "brand": "NBK / 鍋屋 / KTR", "model": "MJC 梅花型"}, {"id": "BR06", "name": "V 型皮帶", "cat": "BR", "unit": "條", "brand": "阪東 Bando / 三星 Mitsuboshi", "model": "A/B/M/SPZ 型"}, {"id": "BR07", "name": "同步皮帶(齒型)", "cat": "BR", "unit": "條", "brand": "Bando / Mitsuboshi / Gates", "model": "XL/L/H/3M/5M/8M"}, {"id": "BR08", "name": "滾子鏈條", "cat": "BR", "unit": "條", "brand": "椿本 Tsubaki / 桂盟 KMC", "model": "RS40/RS50/RS60"}, {"id": "BR09", "name": "鏈輪", "cat": "BR", "unit": "個", "brand": "Tsubaki / 標準件", "model": "配合鏈條節距"}, {"id": "BR10", "name": "減速機", "cat": "BR", "unit": "台", "brand": "利茗 Liming / 城邦 / 住友 Sumitomo", "model": "立式/臥式/蝸桿"}, {"id": "BR11", "name": "皮帶輪/惰輪", "cat": "BR", "unit": "個", "brand": "標準件", "model": ""}, {"id": "EC01", "name": "可程式控制器 PLC", "cat": "EC", "unit": "台", "brand": "三菱 Mitsubishi", "model": "MELSEC iQ-F FX5U系列(3U停產)"}, {"id": "EC02", "name": "人機介面 HMI", "cat": "EC", "unit": "台", "brand": "三菱 / 昆仑通态", "model": "GOT2000 GT2510/GT2505；RUI1006IE"}, {"id": "EC03", "name": "馬達變頻器 Inverter", "cat": "EC", "unit": "台", "brand": "三菱 Mitsubishi", "model": "FR-E800/FR-A800/F800"}, {"id": "EC04", "name": "伺服驅動/馬達 Servo", "cat": "EC", "unit": "組", "brand": "三菱 Mitsubishi", "model": "MELSERVO-J5/J4"}, {"id": "EC05", "name": "控制電源濾波器", "cat": "EC", "unit": "個", "brand": "TDK-Lambda", "model": "RTEN-5010 (三相三線 500V 10A)"}, {"id": "EC06", "name": "直流電源供應器 DC PSU", "cat": "EC", "unit": "台", "brand": "歐姆龍 Omron", "model": "S8VS-06024 (DC24V/60W)"}, {"id": "EC07", "name": "電磁接觸器 Contactor", "cat": "EC", "unit": "個", "brand": "FUJI 富士", "model": "SC-系列"}, {"id": "EC08", "name": "電磁閥 Solenoid Valve", "cat": "EC", "unit": "個", "brand": "TACO / FESTO 飛斯妥", "model": "原廠標準氣動控制閥組"}, {"id": "EC09", "name": "電驛/繼電器 Relay", "cat": "EC", "unit": "個", "brand": "歐姆龍 Omron", "model": "G3H-203SN/G9H/G3HD-X03SN"}, {"id": "EC10", "name": "無熔絲開關 NFB", "cat": "EC", "unit": "個", "brand": "FUJI 富士", "model": "BW系列 BW125 JAG 3P"}, {"id": "EL01", "name": "感應/減速馬達(一般)", "cat": "EL", "unit": "台", "brand": "東元 TECO / 大同 / 士林 Shihlin", "model": "1/4~5HP 4P"}, {"id": "EL02", "name": "中間繼電器+座", "cat": "EL", "unit": "個", "brand": "歐姆龍 Omron / Fuji", "model": "MY2N/MY4N (註:強電標準見EC)"}, {"id": "EL03", "name": "按鈕/選擇開關", "cat": "EL", "unit": "個", "brand": "和泉 IDEC / 天得 TEND / Fuji", "model": "φ22 / φ30"}, {"id": "EL04", "name": "指示燈/蜂鳴器", "cat": "EL", "unit": "個", "brand": "IDEC / 天得 TEND", "model": "φ22 LED 24V/220V"}, {"id": "EL05", "name": "端子台", "cat": "EL", "unit": "個", "brand": "町洋 Dinkle / Phoenix", "model": "DK/PC 系列"}, {"id": "EL06", "name": "保險絲/保險絲座", "cat": "EL", "unit": "個", "brand": "", "model": "玻璃管/陶瓷"}, {"id": "EL07", "name": "電線/電纜", "cat": "EL", "unit": "米", "brand": "太平洋 / 華新麗華", "model": "PVC 1.25/2.0/3.5mm²"}, {"id": "EL08", "name": "配線槽/束線材", "cat": "EL", "unit": "條", "brand": "KSS", "model": "25×25 ~ 50×50"}, {"id": "SN01", "name": "近接開關(感應)", "cat": "SN", "unit": "個", "brand": "歐姆龍 Omron / Autonics / 陽傑 Fotek", "model": "M12/M18 PNP/NPN"}, {"id": "SN02", "name": "光電開關", "cat": "SN", "unit": "個", "brand": "Omron / Autonics / Keyence", "model": "E3Z / BEN 系列"}, {"id": "SN03", "name": "光纖感測+放大器", "cat": "SN", "unit": "組", "brand": "Omron / Autonics", "model": "E3X / BF 系列"}, {"id": "SN04", "name": "溫度感測器/熱電偶", "cat": "SN", "unit": "支", "brand": "Fotek / Autonics", "model": "K型 / PT100"}, {"id": "SN05", "name": "溫控器(控制器)", "cat": "SN", "unit": "個", "brand": "Omron / Fotek / RKC", "model": "E5CC / MT 系列"}, {"id": "SN06", "name": "壓力開關/壓力錶", "cat": "SN", "unit": "個", "brand": "SMC / Omron", "model": ""}, {"id": "SN07", "name": "料位/液位感測器", "cat": "SN", "unit": "個", "brand": "Autonics / Omron", "model": "電容式/浮球"}, {"id": "SN08", "name": "編碼器 Encoder", "cat": "SN", "unit": "個", "brand": "Omron / Autonics / Koyo", "model": "E6B2 系列"}, {"id": "SN09", "name": "計數器/計時器", "cat": "SN", "unit": "個", "brand": "Omron / Autonics", "model": "H7 / LE 系列"}, {"id": "PN01", "name": "氣缸(標準/迷你)", "cat": "PN", "unit": "支", "brand": "SMC / 亞德客 AirTAC / CKD", "model": "SC/SDA/MAL"}, {"id": "PN02", "name": "氣動電磁閥", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": "4V/SY 系列 (控制閥標準見EC)"}, {"id": "PN03", "name": "調理組 F.R.L", "cat": "PN", "unit": "組", "brand": "SMC / AirTAC", "model": "AC/GFC 系列"}, {"id": "PN04", "name": "PU 氣管", "cat": "PN", "unit": "米", "brand": "SMC / AirTAC", "model": "φ4/φ6/φ8/φ12"}, {"id": "PN05", "name": "快速接頭", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": "PC/PL 系列"}, {"id": "PN06", "name": "消音器", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "PN07", "name": "真空產生器/吸盤", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "LU01", "name": "潤滑脂(黃油)", "cat": "LU", "unit": "罐", "brand": "Mobil / Shell / 台塑", "model": "鋰基 EP2"}, {"id": "LU02", "name": "食品級潤滑脂 NSF H1", "cat": "LU", "unit": "罐", "brand": "Klüber / Mobil SHC Cibus / FUCHS Cassida", "model": "H1 認證"}, {"id": "LU03", "name": "齒輪油", "cat": "LU", "unit": "公升", "brand": "Mobil / Shell / 台塑", "model": "#150/#220"}, {"id": "LU04", "name": "食品級潤滑油 NSF H1", "cat": "LU", "unit": "公升", "brand": "Cassida / Klüber", "model": "H1 認證"}, {"id": "LU05", "name": "液壓油", "cat": "LU", "unit": "公升", "brand": "Mobil / Shell", "model": "#46/#68"}, {"id": "LU06", "name": "鏈條油/噴劑", "cat": "LU", "unit": "罐", "brand": "", "model": ""}, {"id": "SE01", "name": "O 型環", "cat": "SE", "unit": "個", "brand": "NOK", "model": "P/G/S 系列 NBR/FKM/EPDM"}, {"id": "SE02", "name": "油封", "cat": "SE", "unit": "個", "brand": "NAK / NOK", "model": "TC/TB 型"}, {"id": "SE03", "name": "機械軸封(迫緊)", "cat": "SE", "unit": "個", "brand": "NOK / John Crane", "model": ""}, {"id": "SE04", "name": "平墊片/法蘭墊", "cat": "SE", "unit": "片", "brand": "", "model": "無石棉/PTFE"}, {"id": "SE05", "name": "食品級矽膠條", "cat": "SE", "unit": "米", "brand": "", "model": "FDA 矽膠"}, {"id": "SE06", "name": "PTFE(鐵氟龍)墊片", "cat": "SE", "unit": "片", "brand": "", "model": ""}, {"id": "BT01", "name": "PU 食品級輸送帶", "cat": "BT", "unit": "條", "brand": "Volta / Habasit / Ammeraal", "model": "平面/擋條"}, {"id": "BT02", "name": "PVC 輸送帶", "cat": "BT", "unit": "條", "brand": "Habasit / Forbo Siegling", "model": ""}, {"id": "BT03", "name": "塑膠模組網帶", "cat": "BT", "unit": "組", "brand": "Intralox / Habasit", "model": "直走/轉彎"}, {"id": "BT04", "name": "不鏽鋼網帶(輸送/烤箱)", "cat": "BT", "unit": "組", "brand": "訂製", "model": "人字/三明治網"}, {"id": "BT05", "name": "擋邊/裙邊/導條", "cat": "BT", "unit": "米", "brand": "", "model": "UHMW-PE"}, {"id": "BT06", "name": "刮板/清潔片", "cat": "BT", "unit": "支", "brand": "", "model": ""}, {"id": "BT07", "name": "滾筒/惰輪", "cat": "BT", "unit": "支", "brand": "", "model": ""}, {"id": "HT01", "name": "電熱管/發熱管", "cat": "HT", "unit": "支", "brand": "訂製(本地)", "model": "依瓦數/電壓"}, {"id": "HT02", "name": "鰭片式/陶瓷加熱器", "cat": "HT", "unit": "個", "brand": "", "model": ""}, {"id": "HT03", "name": "封口加熱片(包裝機)", "cat": "HT", "unit": "片", "brand": "原廠", "model": ""}, {"id": "HT04", "name": "固態繼電器 SSR", "cat": "HT", "unit": "個", "brand": "陽傑 Fotek / Omron", "model": "SSR-25DA/40DA"}, {"id": "HT05", "name": "加熱用感溫線", "cat": "HT", "unit": "支", "brand": "", "model": "K型"}, {"id": "PK01", "name": "熱封刀/封口刀", "cat": "PK", "unit": "支", "brand": "原廠/訂製", "model": ""}, {"id": "PK02", "name": "鐵氟龍(PTFE)膠帶/布", "cat": "PK", "unit": "捲", "brand": "", "model": "0.13/0.18mm"}, {"id": "PK03", "name": "海綿條/矽膠墊", "cat": "PK", "unit": "條", "brand": "", "model": ""}, {"id": "PK04", "name": "矽膠輪/夾膜輪", "cat": "PK", "unit": "個", "brand": "", "model": ""}, {"id": "PK05", "name": "走膜/輸送皮帶", "cat": "PK", "unit": "條", "brand": "", "model": ""}, {"id": "PK06", "name": "包裝切刀/鋸齒刀", "cat": "PK", "unit": "支", "brand": "", "model": ""}, {"id": "PK07", "name": "日期碼字粒/鋼字", "cat": "PK", "unit": "組", "brand": "", "model": ""}, {"id": "FT01", "name": "氣動過濾濾芯", "cat": "FT", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "FT02", "name": "油霧器濾芯", "cat": "FT", "unit": "個", "brand": "", "model": ""}, {"id": "FT03", "name": "集塵濾袋/濾筒", "cat": "FT", "unit": "個", "brand": "", "model": ""}, {"id": "FT04", "name": "不鏽鋼濾網", "cat": "FT", "unit": "個", "brand": "", "model": "依目數"}, {"id": "FT05", "name": "進氣濾棉", "cat": "FT", "unit": "片", "brand": "", "model": ""}, {"id": "FA01", "name": "不鏽鋼螺絲/螺帽", "cat": "FA", "unit": "組", "brand": "", "model": "SUS304/316"}, {"id": "FA02", "name": "墊圈(平/彈)", "cat": "FA", "unit": "個", "brand": "", "model": "SUS"}, {"id": "FA03", "name": "扣環(C/E 環)", "cat": "FA", "unit": "個", "brand": "", "model": ""}, {"id": "FA04", "name": "彈簧", "cat": "FA", "unit": "個", "brand": "", "model": "壓縮/拉伸"}, {"id": "FA05", "name": "定位銷/插銷", "cat": "FA", "unit": "支", "brand": "", "model": ""}, {"id": "FA06", "name": "把手/旋鈕/鉸鏈", "cat": "FA", "unit": "個", "brand": "", "model": ""}, {"id": "PI01", "name": "衛生級不鏽鋼管", "cat": "PI", "unit": "支", "brand": "", "model": "SUS304 快接式"}, {"id": "PI02", "name": "水/油/氣管", "cat": "PI", "unit": "米", "brand": "", "model": ""}, {"id": "PI03", "name": "管接頭/彎頭", "cat": "PI", "unit": "個", "brand": "", "model": "衛生夾頭"}, {"id": "PI04", "name": "球閥/閘閥/蝶閥", "cat": "PI", "unit": "個", "brand": "", "model": ""}, {"id": "PI05", "name": "隔膜閥/衛生閥", "cat": "PI", "unit": "個", "brand": "", "model": ""}, {"id": "PI06", "name": "軟管(食品級)", "cat": "PI", "unit": "米", "brand": "", "model": ""}, {"id": "CT01", "name": "切刀/刀片", "cat": "CT", "unit": "支", "brand": "訂製", "model": ""}, {"id": "CT02", "name": "刮刀/分條刀", "cat": "CT", "unit": "支", "brand": "", "model": ""}, {"id": "CT03", "name": "耐磨襯板/條(UHMW)", "cat": "CT", "unit": "片", "brand": "", "model": ""}, {"id": "CT04", "name": "模具/模頭(成型)", "cat": "CT", "unit": "組", "brand": "原廠", "model": ""}, {"id": "CT05", "name": "噴嘴(噴油/噴液)", "cat": "CT", "unit": "個", "brand": "原廠", "model": ""}, {"id": "CH01", "name": "食品級清潔劑", "cat": "CH", "unit": "瓶", "brand": "", "model": "NSF"}, {"id": "CH02", "name": "鬆動/除鏽劑", "cat": "CH", "unit": "罐", "brand": "WD-40", "model": ""}, {"id": "CH03", "name": "防鏽油/噴劑", "cat": "CH", "unit": "罐", "brand": "", "model": ""}, {"id": "CH04", "name": "乾性潤滑噴劑(PTFE/矽利康)", "cat": "CH", "unit": "罐", "brand": "", "model": ""}, {"id": "CH05", "name": "工業酒精/IPA", "cat": "CH", "unit": "公升", "brand": "", "model": ""}, {"id": "CH06", "name": "矽利康/密封膠(食品級)", "cat": "CH", "unit": "支", "brand": "", "model": "FDA"}, {"id": "CH07", "name": "螺絲固定劑", "cat": "CH", "unit": "支", "brand": "Loctite 樂泰", "model": "243/263"}, {"id": "WD01", "name": "不鏽鋼焊條/焊絲", "cat": "WD", "unit": "包", "brand": "", "model": "ER308"}, {"id": "WD02", "name": "砂輪片/切割片", "cat": "WD", "unit": "片", "brand": "", "model": "4\"/7\""}, {"id": "WD03", "name": "鎢棒/研磨頭", "cat": "WD", "unit": "個", "brand": "", "model": ""}, {"id": "MK01", "name": "碳帶(標籤機)", "cat": "MK", "unit": "捲", "brand": "ITW / Ricoh", "model": "蠟基/樹脂"}, {"id": "MK02", "name": "噴印墨水/溶劑", "cat": "MK", "unit": "瓶", "brand": "Domino / Videojet / Hitachi", "model": ""}, {"id": "MK03", "name": "噴頭/濾芯(噴印機)", "cat": "MK", "unit": "個", "brand": "原廠", "model": ""}, {"id": "MK04", "name": "標籤紙/貼紙", "cat": "MK", "unit": "捲", "brand": "", "model": ""}, {"id": "MS01", "name": "尼龍束帶", "cat": "MS", "unit": "包", "brand": "KSS", "model": "100/200/300mm"}, {"id": "MS02", "name": "膠帶(電火布/封箱/雙面)", "cat": "MS", "unit": "捲", "brand": "3M", "model": ""}, {"id": "MS03", "name": "工業抹布/無塵布", "cat": "MS", "unit": "包", "brand": "", "model": ""}, {"id": "MS04", "name": "手套(止滑/耐切/PE)", "cat": "MS", "unit": "雙", "brand": "", "model": ""}, {"id": "MS05", "name": "電池", "cat": "MS", "unit": "個", "brand": "", "model": "3號/4號/鈕扣"}, {"id": "MS06", "name": "燈管/燈泡(照明)", "cat": "MS", "unit": "支", "brand": "", "model": "LED/T8"}], CAT_MAP={"BR": "軸承傳動", "EC": "電控核心元件(標準規範)", "EL": "一般電氣耗材", "SN": "感測/儀控", "PN": "氣動元件", "LU": "潤滑油料", "SE": "密封/墊片", "BT": "輸送帶/網帶", "HT": "加熱元件", "PK": "包裝機備件", "FT": "過濾/濾材", "FA": "緊固/五金", "PI": "管路/閥件", "CT": "刀具/耐磨件", "CH": "清潔/化學", "WD": "焊接/研磨", "MK": "印刷/標識", "MS": "雜項耗材"};
+const SEED_EQ=[{"id": "BG_01PK3B", "name": "立式給袋機", "line": "包裝線", "status": "使用中"}, {"id": "CM_01PR2S", "name": "薯片機B", "line": "米片線", "status": "使用中"}, {"id": "CM_02PR2S", "name": "薯片機C", "line": "米片線", "status": "使用中"}, {"id": "CM_03PR2S", "name": "薯片機D", "line": "米片線", "status": "使用中"}, {"id": "CM_04PR2S", "name": "薯片機E", "line": "米片線", "status": "使用中"}, {"id": "CM_05PR2S", "name": "薯片機F", "line": "米片線", "status": "使用中"}, {"id": "CM_06PR2S", "name": "薯片機G", "line": "米片線", "status": "使用中"}, {"id": "CM_07PR2S", "name": "HMS-25 米片機", "line": "米片線", "status": "停用"}, {"id": "CP_01PK3B", "name": "唐亞V230 高解析碳帶印刷機", "line": "包裝線", "status": "使用中"}, {"id": "CR_01RF2S", "name": "角柱型粉碎機", "line": "米花線", "status": "使用中"}, {"id": "CS_01PK3P", "name": "半自動封箱機A", "line": "包裝線", "status": "使用中"}, {"id": "CS_02PK3P", "name": "半自動封箱機B", "line": "包裝線", "status": "使用中"}, {"id": "CS_03PK3P", "name": "半自動封箱機C", "line": "包裝線", "status": "使用中"}, {"id": "CT_1TP1E", "name": "組織蛋白帶式輸送切斷機", "line": "TVP", "status": "停用"}, {"id": "CV_01PR2S", "name": "輸送機 (薯片線-1)", "line": "米片線", "status": "使用中"}, {"id": "CV_02PR2S", "name": "可調式輸送機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "CV_03RF2S", "name": "可調式輸送機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "CV_04RF2S", "name": "輸送機 (米花線-1)", "line": "米花線", "status": "使用中"}, {"id": "CV_05PK3B", "name": "輸送機 (立式包裝機A)", "line": "包裝線", "status": "使用中"}, {"id": "CV_06PK3B", "name": "輸送機 (立式包裝機B)", "line": "包裝線", "status": "使用中"}, {"id": "CV_07PK3B", "name": "輸送機 (給袋)", "line": "包裝線", "status": "使用中"}, {"id": "CW_01PK3B", "name": "重檢機A", "line": "包裝線", "status": "使用中"}, {"id": "CW_02PK3B", "name": "重檢機B", "line": "包裝線", "status": "使用中"}, {"id": "CW_03PK3B", "name": "重檢機C", "line": "包裝線", "status": "使用中"}, {"id": "DM_01PR2S", "name": "滾桶攪拌機 MX-60型", "line": "米片線", "status": "使用中"}, {"id": "DM_02PR2S", "name": "雙滾筒調味機", "line": "米片線", "status": "使用中"}, {"id": "DM_03RF2S", "name": "旋轉式調味機-1 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "DM_04RF2S", "name": "旋轉式調味機-2 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "DM_05RF2S", "name": "加熱滾桶攪拌罐 300L", "line": "米花線", "status": "使用中"}, {"id": "DM_06RF2S", "name": "滾桶攪拌機 3號", "line": "米花線", "status": "使用中"}, {"id": "DM_07RF2S", "name": "滾桶攪拌機-C", "line": "米花線", "status": "使用中"}, {"id": "EL_01PR2S", "name": "提升機 (薯片線-1)", "line": "米片線", "status": "使用中"}, {"id": "EL_02PR2S", "name": "提升機 (薯片線-2)", "line": "米片線", "status": "使用中"}, {"id": "EL_03RF2S", "name": "提升機 (米花線-1)", "line": "米花線", "status": "使用中"}, {"id": "EL_04RF2S", "name": "提升機 (米花線-2)", "line": "米花線", "status": "使用中"}, {"id": "EL_05RF2S", "name": "提升機 (米花線-3)", "line": "米花線", "status": "使用中"}, {"id": "EL_06RF2S", "name": "提升機 (米花線-3)", "line": "米花線", "status": "使用中"}, {"id": "EL_07PK3B", "name": "提升機 (立式包裝機A-1)", "line": "包裝線", "status": "使用中"}, {"id": "EL_08PK3B", "name": "提升機 (立式包裝機A-2)", "line": "包裝線", "status": "使用中"}, {"id": "EL_09PK3B", "name": "提升機 (立式包裝機B-1)", "line": "包裝線", "status": "使用中"}, {"id": "EL_10PK3B", "name": "提升機 (立式包裝機B-2)", "line": "包裝線", "status": "使用中"}, {"id": "EL_11PK3B", "name": "提升機 (給袋)", "line": "包裝線", "status": "使用中"}, {"id": "EX_01RF1E", "name": "成型機A", "line": "米花線", "status": "使用中"}, {"id": "EX_02RF1E", "name": "成型機B", "line": "米花線", "status": "使用中"}, {"id": "EX_03RF1E", "name": "成型機C", "line": "米花線", "status": "使用中"}, {"id": "EX_04RF1E", "name": "成型機D", "line": "米花線", "status": "停用"}, {"id": "FB_01RF1E", "name": "佛柏格混合機A", "line": "米花線", "status": "停用"}, {"id": "FB_02RF1E", "name": "佛博格混合機B", "line": "米花線", "status": "停用"}, {"id": "FL_01TP1E", "name": "注餡機", "line": "TVP", "status": "停用"}, {"id": "LS_01RF2S", "name": "噴液機二流體式 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "MD_01PK3B", "name": "喉管式金屬檢出機", "line": "包裝線", "status": "使用中"}, {"id": "MD_02PK3B", "name": "水平式金屬檢出機", "line": "包裝線", "status": "使用中"}, {"id": "MP_01RF1G", "name": "微粉碎機A", "line": "米花線", "status": "停用"}, {"id": "MP_02RF1G", "name": "微粉碎機B", "line": "米花線", "status": "使用中"}, {"id": "OS_01PR2S", "name": "加熱噴油機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "OS_02RF2S", "name": "自動線噴油機 1000型E", "line": "米花線", "status": "13"}, {"id": "OS_03RF2S", "name": "加熱噴油機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "OS_04RF2S", "name": "加熱噴油機 (5號)", "line": "米花線", "status": "使用中"}, {"id": "OV_01PR2S", "name": "三層電烤箱", "line": "米片線", "status": "11"}, {"id": "OV_02RF2S", "name": "連續式乾燥機", "line": "米花線", "status": "14"}, {"id": "OV_03RF2S", "name": "熱風乾燥機 10號", "line": "米花線", "status": "使用中"}, {"id": "OV_04RF2S", "name": "熱風乾燥機 14號", "line": "米花線", "status": "使用中"}, {"id": "OV_05RF2S", "name": "熱風乾燥機 (烤箱3號)", "line": "米花線", "status": "使用中"}, {"id": "OV_06RF2S", "name": "不鏽鋼熱風乾燥機 (烤箱11號)", "line": "米花線", "status": "使用中"}, {"id": "OV_07RF2S", "name": "旋風式烤箱", "line": "米花線", "status": "停用"}, {"id": "PD_01PR2S", "name": "震動灑粉機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "PD_02RF2S", "name": "震動灑粉機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "PF_01TP1E", "name": "包枕成型機(東定)", "line": "TVP", "status": "停用"}, {"id": "SL_01PK3B", "name": "連續封口機A", "line": "包裝線", "status": "使用中"}, {"id": "SL_02PK3B", "name": "連續封口機B", "line": "包裝線", "status": "使用中"}, {"id": "SR_01RF3B", "name": "震動篩選機", "line": "米花線", "status": "使用中"}, {"id": "TB_01PK3P", "name": "成品轉盤", "line": "包裝線", "status": "使用中"}, {"id": "VB_01PR2S", "name": "震動機給料機 (薯片線)", "line": "米片線", "status": "使用中"}, {"id": "VB_02RF2S", "name": "震動整列機A", "line": "米花線", "status": "使用中"}, {"id": "VB_03RF2S", "name": "震動機", "line": "米花線", "status": "使用中"}, {"id": "VB_04RF2S", "name": "震動機給料機 (米花線)", "line": "米花線", "status": "使用中"}, {"id": "VF_01PK3B", "name": "立式包裝機A", "line": "包裝線", "status": "15"}, {"id": "VF_02PK3B", "name": "立式包裝機B", "line": "包裝線", "status": "15"}],SEED_MAT=[{"id": "BR01", "name": "深溝球軸承", "cat": "BR", "unit": "個", "brand": "NSK / NTN / KOYO", "model": "6000/6200/6300 系列"}, {"id": "BR02", "name": "含座軸承(臥式 UCP)", "cat": "BR", "unit": "個", "brand": "NSK / FYH / ASAHI", "model": "UCP204~UCP210"}, {"id": "BR03", "name": "含座軸承(立式 UCF/UCFL)", "cat": "BR", "unit": "個", "brand": "NSK / FYH", "model": "UCF/UCFL 系列"}, {"id": "BR04", "name": "自動調心軸承", "cat": "BR", "unit": "個", "brand": "NSK / NTN", "model": "1200/2200 系列"}, {"id": "BR05", "name": "聯軸器(梅花/彈性)", "cat": "BR", "unit": "個", "brand": "NBK / 鍋屋 / KTR", "model": "MJC 梅花型"}, {"id": "BR06", "name": "V 型皮帶", "cat": "BR", "unit": "條", "brand": "阪東 Bando / 三星 Mitsuboshi", "model": "A/B/M/SPZ 型"}, {"id": "BR07", "name": "同步皮帶(齒型)", "cat": "BR", "unit": "條", "brand": "Bando / Mitsuboshi / Gates", "model": "XL/L/H/3M/5M/8M"}, {"id": "BR08", "name": "滾子鏈條", "cat": "BR", "unit": "條", "brand": "椿本 Tsubaki / 桂盟 KMC", "model": "RS40/RS50/RS60"}, {"id": "BR09", "name": "鏈輪", "cat": "BR", "unit": "個", "brand": "Tsubaki / 標準件", "model": "配合鏈條節距"}, {"id": "BR10", "name": "減速機", "cat": "BR", "unit": "台", "brand": "利茗 Liming / 城邦 / 住友 Sumitomo", "model": "立式/臥式/蝸桿"}, {"id": "BR11", "name": "皮帶輪/惰輪", "cat": "BR", "unit": "個", "brand": "標準件", "model": ""}, {"id": "EC01", "name": "可程式控制器 PLC", "cat": "EC", "unit": "台", "brand": "三菱 Mitsubishi", "model": "MELSEC iQ-F FX5U系列(3U停產)"}, {"id": "EC02", "name": "人機介面 HMI", "cat": "EC", "unit": "台", "brand": "三菱 / 昆仑通态", "model": "GOT2000 GT2510/GT2505；RUI1006IE"}, {"id": "EC03", "name": "馬達變頻器 Inverter", "cat": "EC", "unit": "台", "brand": "三菱 Mitsubishi", "model": "FR-E800/FR-A800/F800"}, {"id": "EC04", "name": "伺服驅動/馬達 Servo", "cat": "EC", "unit": "組", "brand": "三菱 Mitsubishi", "model": "MELSERVO-J5/J4"}, {"id": "EC05", "name": "控制電源濾波器", "cat": "EC", "unit": "個", "brand": "TDK-Lambda", "model": "RTEN-5010 (三相三線 500V 10A)"}, {"id": "EC06", "name": "直流電源供應器 DC PSU", "cat": "EC", "unit": "台", "brand": "歐姆龍 Omron", "model": "S8VS-06024 (DC24V/60W)"}, {"id": "EC07", "name": "電磁接觸器 Contactor", "cat": "EC", "unit": "個", "brand": "FUJI 富士", "model": "SC-系列"}, {"id": "EC08", "name": "電磁閥 Solenoid Valve", "cat": "EC", "unit": "個", "brand": "TACO / FESTO 飛斯妥", "model": "原廠標準氣動控制閥組"}, {"id": "EC09", "name": "電驛/繼電器 Relay", "cat": "EC", "unit": "個", "brand": "歐姆龍 Omron", "model": "G3H-203SN/G9H/G3HD-X03SN"}, {"id": "EC10", "name": "無熔絲開關 NFB", "cat": "EC", "unit": "個", "brand": "FUJI 富士", "model": "BW系列 BW125 JAG 3P"}, {"id": "EL01", "name": "感應/減速馬達(一般)", "cat": "EL", "unit": "台", "brand": "東元 TECO / 大同 / 士林 Shihlin", "model": "1/4~5HP 4P"}, {"id": "EL02", "name": "中間繼電器+座", "cat": "EL", "unit": "個", "brand": "歐姆龍 Omron / Fuji", "model": "MY2N/MY4N (註:強電標準見EC)"}, {"id": "EL03", "name": "按鈕/選擇開關", "cat": "EL", "unit": "個", "brand": "和泉 IDEC / 天得 TEND / Fuji", "model": "φ22 / φ30"}, {"id": "EL04", "name": "指示燈/蜂鳴器", "cat": "EL", "unit": "個", "brand": "IDEC / 天得 TEND", "model": "φ22 LED 24V/220V"}, {"id": "EL05", "name": "端子台", "cat": "EL", "unit": "個", "brand": "町洋 Dinkle / Phoenix", "model": "DK/PC 系列"}, {"id": "EL06", "name": "保險絲/保險絲座", "cat": "EL", "unit": "個", "brand": "", "model": "玻璃管/陶瓷"}, {"id": "EL07", "name": "電線/電纜", "cat": "EL", "unit": "米", "brand": "太平洋 / 華新麗華", "model": "PVC 1.25/2.0/3.5mm²"}, {"id": "EL08", "name": "配線槽/束線材", "cat": "EL", "unit": "條", "brand": "KSS", "model": "25×25 ~ 50×50"}, {"id": "SN01", "name": "近接開關(感應)", "cat": "SN", "unit": "個", "brand": "歐姆龍 Omron / Autonics / 陽傑 Fotek", "model": "M12/M18 PNP/NPN"}, {"id": "SN02", "name": "光電開關", "cat": "SN", "unit": "個", "brand": "Omron / Autonics / Keyence", "model": "E3Z / BEN 系列"}, {"id": "SN03", "name": "光纖感測+放大器", "cat": "SN", "unit": "組", "brand": "Omron / Autonics", "model": "E3X / BF 系列"}, {"id": "SN04", "name": "溫度感測器/熱電偶", "cat": "SN", "unit": "支", "brand": "Fotek / Autonics", "model": "K型 / PT100"}, {"id": "SN05", "name": "溫控器(控制器)", "cat": "SN", "unit": "個", "brand": "Omron / Fotek / RKC", "model": "E5CC / MT 系列"}, {"id": "SN06", "name": "壓力開關/壓力錶", "cat": "SN", "unit": "個", "brand": "SMC / Omron", "model": ""}, {"id": "SN07", "name": "料位/液位感測器", "cat": "SN", "unit": "個", "brand": "Autonics / Omron", "model": "電容式/浮球"}, {"id": "SN08", "name": "編碼器 Encoder", "cat": "SN", "unit": "個", "brand": "Omron / Autonics / Koyo", "model": "E6B2 系列"}, {"id": "SN09", "name": "計數器/計時器", "cat": "SN", "unit": "個", "brand": "Omron / Autonics", "model": "H7 / LE 系列"}, {"id": "PN01", "name": "氣缸(標準/迷你)", "cat": "PN", "unit": "支", "brand": "SMC / 亞德客 AirTAC / CKD", "model": "SC/SDA/MAL"}, {"id": "PN02", "name": "氣動電磁閥", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": "4V/SY 系列 (控制閥標準見EC)"}, {"id": "PN03", "name": "調理組 F.R.L", "cat": "PN", "unit": "組", "brand": "SMC / AirTAC", "model": "AC/GFC 系列"}, {"id": "PN04", "name": "PU 氣管", "cat": "PN", "unit": "米", "brand": "SMC / AirTAC", "model": "φ4/φ6/φ8/φ12"}, {"id": "PN05", "name": "快速接頭", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": "PC/PL 系列"}, {"id": "PN06", "name": "消音器", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "PN07", "name": "真空產生器/吸盤", "cat": "PN", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "LU01", "name": "潤滑脂(黃油)", "cat": "LU", "unit": "罐", "brand": "Mobil / Shell / 台塑", "model": "鋰基 EP2"}, {"id": "LU02", "name": "食品級潤滑脂 NSF H1", "cat": "LU", "unit": "罐", "brand": "Klüber / Mobil SHC Cibus / FUCHS Cassida", "model": "H1 認證"}, {"id": "LU03", "name": "齒輪油", "cat": "LU", "unit": "公升", "brand": "Mobil / Shell / 台塑", "model": "#150/#220"}, {"id": "LU04", "name": "食品級潤滑油 NSF H1", "cat": "LU", "unit": "公升", "brand": "Cassida / Klüber", "model": "H1 認證"}, {"id": "LU05", "name": "液壓油", "cat": "LU", "unit": "公升", "brand": "Mobil / Shell", "model": "#46/#68"}, {"id": "LU06", "name": "鏈條油/噴劑", "cat": "LU", "unit": "罐", "brand": "", "model": ""}, {"id": "SE01", "name": "O 型環", "cat": "SE", "unit": "個", "brand": "NOK", "model": "P/G/S 系列 NBR/FKM/EPDM"}, {"id": "SE02", "name": "油封", "cat": "SE", "unit": "個", "brand": "NAK / NOK", "model": "TC/TB 型"}, {"id": "SE03", "name": "機械軸封(迫緊)", "cat": "SE", "unit": "個", "brand": "NOK / John Crane", "model": ""}, {"id": "SE04", "name": "平墊片/法蘭墊", "cat": "SE", "unit": "片", "brand": "", "model": "無石棉/PTFE"}, {"id": "SE05", "name": "食品級矽膠條", "cat": "SE", "unit": "米", "brand": "", "model": "FDA 矽膠"}, {"id": "SE06", "name": "PTFE(鐵氟龍)墊片", "cat": "SE", "unit": "片", "brand": "", "model": ""}, {"id": "BT01", "name": "PU 食品級輸送帶", "cat": "BT", "unit": "條", "brand": "Volta / Habasit / Ammeraal", "model": "平面/擋條"}, {"id": "BT02", "name": "PVC 輸送帶", "cat": "BT", "unit": "條", "brand": "Habasit / Forbo Siegling", "model": ""}, {"id": "BT03", "name": "塑膠模組網帶", "cat": "BT", "unit": "組", "brand": "Intralox / Habasit", "model": "直走/轉彎"}, {"id": "BT04", "name": "不鏽鋼網帶(輸送/烤箱)", "cat": "BT", "unit": "組", "brand": "訂製", "model": "人字/三明治網"}, {"id": "BT05", "name": "擋邊/裙邊/導條", "cat": "BT", "unit": "米", "brand": "", "model": "UHMW-PE"}, {"id": "BT06", "name": "刮板/清潔片", "cat": "BT", "unit": "支", "brand": "", "model": ""}, {"id": "BT07", "name": "滾筒/惰輪", "cat": "BT", "unit": "支", "brand": "", "model": ""}, {"id": "HT01", "name": "電熱管/發熱管", "cat": "HT", "unit": "支", "brand": "訂製(本地)", "model": "依瓦數/電壓"}, {"id": "HT02", "name": "鰭片式/陶瓷加熱器", "cat": "HT", "unit": "個", "brand": "", "model": ""}, {"id": "HT03", "name": "封口加熱片(包裝機)", "cat": "HT", "unit": "片", "brand": "原廠", "model": ""}, {"id": "HT04", "name": "固態繼電器 SSR", "cat": "HT", "unit": "個", "brand": "陽傑 Fotek / Omron", "model": "SSR-25DA/40DA"}, {"id": "HT05", "name": "加熱用感溫線", "cat": "HT", "unit": "支", "brand": "", "model": "K型"}, {"id": "PK01", "name": "熱封刀/封口刀", "cat": "PK", "unit": "支", "brand": "原廠/訂製", "model": ""}, {"id": "PK02", "name": "鐵氟龍(PTFE)膠帶/布", "cat": "PK", "unit": "捲", "brand": "", "model": "0.13/0.18mm"}, {"id": "PK03", "name": "海綿條/矽膠墊", "cat": "PK", "unit": "條", "brand": "", "model": ""}, {"id": "PK04", "name": "矽膠輪/夾膜輪", "cat": "PK", "unit": "個", "brand": "", "model": ""}, {"id": "PK05", "name": "走膜/輸送皮帶", "cat": "PK", "unit": "條", "brand": "", "model": ""}, {"id": "PK06", "name": "包裝切刀/鋸齒刀", "cat": "PK", "unit": "支", "brand": "", "model": ""}, {"id": "PK07", "name": "日期碼字粒/鋼字", "cat": "PK", "unit": "組", "brand": "", "model": ""}, {"id": "FT01", "name": "氣動過濾濾芯", "cat": "FT", "unit": "個", "brand": "SMC / AirTAC", "model": ""}, {"id": "FT02", "name": "油霧器濾芯", "cat": "FT", "unit": "個", "brand": "", "model": ""}, {"id": "FT03", "name": "集塵濾袋/濾筒", "cat": "FT", "unit": "個", "brand": "", "model": ""}, {"id": "FT04", "name": "不鏽鋼濾網", "cat": "FT", "unit": "個", "brand": "", "model": "依目數"}, {"id": "FT05", "name": "進氣濾棉", "cat": "FT", "unit": "片", "brand": "", "model": ""}, {"id": "FA01", "name": "不鏽鋼螺絲/螺帽", "cat": "FA", "unit": "組", "brand": "", "model": "SUS304/316"}, {"id": "FA02", "name": "墊圈(平/彈)", "cat": "FA", "unit": "個", "brand": "", "model": "SUS"}, {"id": "FA03", "name": "扣環(C/E 環)", "cat": "FA", "unit": "個", "brand": "", "model": ""}, {"id": "FA04", "name": "彈簧", "cat": "FA", "unit": "個", "brand": "", "model": "壓縮/拉伸"}, {"id": "FA05", "name": "定位銷/插銷", "cat": "FA", "unit": "支", "brand": "", "model": ""}, {"id": "FA06", "name": "把手/旋鈕/鉸鏈", "cat": "FA", "unit": "個", "brand": "", "model": ""}, {"id": "PI01", "name": "衛生級不鏽鋼管", "cat": "PI", "unit": "支", "brand": "", "model": "SUS304 快接式"}, {"id": "PI02", "name": "水/油/氣管", "cat": "PI", "unit": "米", "brand": "", "model": ""}, {"id": "PI03", "name": "管接頭/彎頭", "cat": "PI", "unit": "個", "brand": "", "model": "衛生夾頭"}, {"id": "PI04", "name": "球閥/閘閥/蝶閥", "cat": "PI", "unit": "個", "brand": "", "model": ""}, {"id": "PI05", "name": "隔膜閥/衛生閥", "cat": "PI", "unit": "個", "brand": "", "model": ""}, {"id": "PI06", "name": "軟管(食品級)", "cat": "PI", "unit": "米", "brand": "", "model": ""}, {"id": "CT01", "name": "切刀/刀片", "cat": "CT", "unit": "支", "brand": "訂製", "model": ""}, {"id": "CT02", "name": "刮刀/分條刀", "cat": "CT", "unit": "支", "brand": "", "model": ""}, {"id": "CT03", "name": "耐磨襯板/條(UHMW)", "cat": "CT", "unit": "片", "brand": "", "model": ""}, {"id": "CT04", "name": "模具/模頭(成型)", "cat": "CT", "unit": "組", "brand": "原廠", "model": ""}, {"id": "CT05", "name": "噴嘴(噴油/噴液)", "cat": "CT", "unit": "個", "brand": "原廠", "model": ""}, {"id": "CH01", "name": "食品級清潔劑", "cat": "CH", "unit": "瓶", "brand": "", "model": "NSF"}, {"id": "CH02", "name": "鬆動/除鏽劑", "cat": "CH", "unit": "罐", "brand": "WD-40", "model": ""}, {"id": "CH03", "name": "防鏽油/噴劑", "cat": "CH", "unit": "罐", "brand": "", "model": ""}, {"id": "CH04", "name": "乾性潤滑噴劑(PTFE/矽利康)", "cat": "CH", "unit": "罐", "brand": "", "model": ""}, {"id": "CH05", "name": "工業酒精/IPA", "cat": "CH", "unit": "公升", "brand": "", "model": ""}, {"id": "CH06", "name": "矽利康/密封膠(食品級)", "cat": "CH", "unit": "支", "brand": "", "model": "FDA"}, {"id": "CH07", "name": "螺絲固定劑", "cat": "CH", "unit": "支", "brand": "Loctite 樂泰", "model": "243/263"}, {"id": "WD01", "name": "不鏽鋼焊條/焊絲", "cat": "WD", "unit": "包", "brand": "", "model": "ER308"}, {"id": "WD02", "name": "砂輪片/切割片", "cat": "WD", "unit": "片", "brand": "", "model": "4\"/7\""}, {"id": "WD03", "name": "鎢棒/研磨頭", "cat": "WD", "unit": "個", "brand": "", "model": ""}, {"id": "MK01", "name": "碳帶(標籤機)", "cat": "MK", "unit": "捲", "brand": "ITW / Ricoh", "model": "蠟基/樹脂"}, {"id": "MK02", "name": "噴印墨水/溶劑", "cat": "MK", "unit": "瓶", "brand": "Domino / Videojet / Hitachi", "model": ""}, {"id": "MK03", "name": "噴頭/濾芯(噴印機)", "cat": "MK", "unit": "個", "brand": "原廠", "model": ""}, {"id": "MK04", "name": "標籤紙/貼紙", "cat": "MK", "unit": "捲", "brand": "", "model": ""}, {"id": "MS01", "name": "尼龍束帶", "cat": "MS", "unit": "包", "brand": "KSS", "model": "100/200/300mm"}, {"id": "MS02", "name": "膠帶(電火布/封箱/雙面)", "cat": "MS", "unit": "捲", "brand": "3M", "model": ""}, {"id": "MS03", "name": "工業抹布/無塵布", "cat": "MS", "unit": "包", "brand": "", "model": ""}, {"id": "MS04", "name": "手套(止滑/耐切/PE)", "cat": "MS", "unit": "雙", "brand": "", "model": ""}, {"id": "MS05", "name": "電池", "cat": "MS", "unit": "個", "brand": "", "model": "3號/4號/鈕扣"}, {"id": "MS06", "name": "燈管/燈泡(照明)", "cat": "MS", "unit": "支", "brand": "", "model": "LED/T8"}],CAT_MAP={"BR": "軸承傳動", "EC": "電控核心元件(標準規範)", "EL": "一般電氣耗材", "SN": "感測/儀控", "PN": "氣動元件", "LU": "潤滑油料", "SE": "密封/墊片", "BT": "輸送帶/網帶", "HT": "加熱元件", "PK": "包裝機備件", "FT": "過濾/濾材", "FA": "緊固/五金", "PI": "管路/閥件", "CT": "刀具/耐磨件", "CH": "清潔/化學", "WD": "焊接/研磨", "MK": "印刷/標識", "MS": "雜項耗材"};
 const REPORTERS=["李秀龍","吳明男","游荃傑","張錫堅","林祿偉"];
-const DEFAULT_PIN="90632323", DEFAULT_RATE=600;
-
-firebase.initializeApp(CFG);
-const db=firebase.database(), ROOT=db.ref("maintenance");
-let EQUIP={}, MAT={}, CONF={laborRate:DEFAULT_RATE,pin:DEFAULT_PIN}, WOS={}, REPS={};
-let adminAuthed=false;
-
-const $=s=>document.querySelector(s), el=(t,p={})=>Object.assign(document.createElement(t),p);
-const APP=()=>document.getElementById("app");
+const DEFAULT_PIN="90632323",DEFAULT_RATE=600;
+const DEFAULT_AREAS=[{code:"1E",name:"製一課 成型區",dept:"製一課"},{code:"1G",name:"製一課 粉碎區",dept:"製一課"},{code:"2S",name:"製二課 調味區",dept:"製二課"},{code:"3B",name:"製三課 內包裝區",dept:"製三課"},{code:"3P",name:"製三課 外包裝區",dept:"製三課"}];
+firebase.initializeApp(CFG);const db=firebase.database(),ROOT=db.ref("maintenance");
+let EQUIP={},MAT={},CONF={laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},WOS={},REPS={},AREAS={};
+let adminAuthed=false,ENGINEER=sessionStorage.getItem("bfy_eng")||"";
+const $=s=>document.querySelector(s),el=(t,p={})=>Object.assign(document.createElement(t),p),APP=()=>document.getElementById("app");
 function toast(m,k){const t=$("#toast");t.textContent=m;t.className="toast show "+(k||"");setTimeout(()=>t.className="toast",2200);}
 function nf(n){return (Number(n)||0).toLocaleString();}
 function catOf(id){const m=(id||"").match(/^[A-Za-z]+/);return m?m[0]:"";}
 function catName(c){return CAT_MAP[c]||c;}
+function areaOf(id){return (id||"").slice(-2);}
 function baseUrl(){return location.href.split("#")[0];}
-function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function dStr(ts){return new Date(ts||0).toISOString().slice(0,10);}
 
-/* ---- 載入主檔 + 即時監聽 ---- */
 async function loadMasters(){
-  const [e,m,c]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get()]);
-  EQUIP=e.val()||{}; MAT=m.val()||{}; CONF=Object.assign({laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},c.val()||{});
+  const [e,m,c,a]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get(),ROOT.child("areas").get()]);
+  EQUIP=e.val()||{};MAT=m.val()||{};CONF=Object.assign({laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},c.val()||{});
+  AREAS=a.val()||{};if(!Object.keys(AREAS).length){DEFAULT_AREAS.forEach(x=>AREAS[x.code]=x);}
 }
-function listenLive(){
-  ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});
-  ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});
-}
-function eqArr(){return Object.values(EQUIP).sort((a,b)=>a.id<b.id?-1:1);}
-function matArr(){return Object.values(MAT).sort((a,b)=>a.id<b.id?-1:1);}
-function woArr(){return Object.entries(WOS).map(([k,v])=>Object.assign({_k:k},v));}
-function repArr(){return Object.entries(REPS).map(([k,v])=>Object.assign({_k:k},v));}
+function listenLive(){ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});}
+const eqArr=()=>Object.values(EQUIP).sort((a,b)=>a.id<b.id?-1:1);
+const matArr=()=>Object.values(MAT).sort((a,b)=>a.id<b.id?-1:1);
+const woArr=()=>Object.entries(WOS).map(([k,v])=>Object.assign({_k:k},v));
+const repArr=()=>Object.entries(REPS).map(([k,v])=>Object.assign({_k:k},v));
+const areaArr=()=>Object.values(AREAS).sort((a,b)=>a.code<b.code?-1:1);
 
-/* ============ 路由 ============ */
-let curView="";
+let curArg=null;
 function rerender(){route(true);}
-function route(keep){
-  const h=location.hash||"";
-  if(h.indexOf("#scan=")===0){curView="scan";engScan(h.slice(6));return;}
-  if(h==="#eng"){curView="eng";engHome();return;}
-  if(h==="#admin"){curView="admin";adminAuthed?adminView():adminLogin();return;}
-  landing();
-}
+function route(){const h=location.hash||"";
+  if(h.indexOf("#scan=")===0)return engScan(h.slice(6));
+  if(h.indexOf("#report=")===0)return faultView(h.slice(8));
+  if(h==="#eng")return engHome();
+  if(h.indexOf("#pivot")===0)return engPivot();
+  if(h==="#myperf")return engPerf();
+  if(h==="#admin")return adminAuthed?adminView():adminLogin();
+  landing();}
 window.addEventListener("hashchange",()=>route());
 
-/* ============ 著陸頁 ============ */
-function landing(){
-  APP().innerHTML=`<div class="landing">
-    <div class="logo">🐠</div><h1>BFY 工務報工系統</h1>
-    <div class="mut">派工 · 報工 · 成本歸集</div>
-    <button class="b-eng" onclick="location.hash='#eng'">🔧 我要報工（工程師）</button>
-    <button class="b-adm" onclick="location.hash='#admin'">🗂️ 後台管理</button>
-    <div class="hint" style="margin-top:18px">工程師請直接掃描設備上的 QR 進入報工。</div>
-  </div>`;
-}
+function landing(){APP().innerHTML=`<div class="landing"><div class="logo">🐠</div><h1>BFY 工務報工系統</h1>
+  <div class="mut">派工 · 報工 · 成本歸集</div>
+  <button class="b-eng" onclick="location.hash='#eng'">🔧 我要報工（工程師）</button>
+  <button class="b-adm" onclick="location.hash='#admin'">🗂️ 後台管理</button>
+  <div class="hint" style="margin-top:16px">工程師也可直接掃描設備 QR 報工、或掃描叫修 QR 報修。</div></div>`;}
 
-/* ============ 工程師端 ============ */
-function engHeader(sub){return `<header><div class="t">🐠 工務報工 <small>${sub||""}</small></div><button onclick="location.hash=''">首頁</button></header>`;}
+/* ===== 工程師端 ===== */
+function engHeader(sub){return `<header><div class="t">🐠 工務報工 <small>${esc(sub||"")}</small></div><div>${ENGINEER?`<button onclick="switchEng()">${esc(ENGINEER)} ▾</button>`:""}<button onclick="location.hash=''">首頁</button></div></header>`;}
+window.switchEng=function(){ENGINEER="";sessionStorage.removeItem("bfy_eng");engHome();};
 function engHome(){
-  const eqs=eqArr();
-  APP().innerHTML=engHeader("選擇設備")+`<main>
-    <div class="card"><h3>請掃描設備 QR，或選擇設備</h3>
-      <label>設備</label>
-      <select id="e_pick">${eqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select>
-      <button class="act" onclick="location.hash='#scan='+document.getElementById('e_pick').value">進入</button>
-    </div></main>`;
+  if(!ENGINEER){APP().innerHTML=engHeader("請選擇身分")+`<main><div class="card"><h3>請選擇你的名字</h3>
+    <div class="namegrid">${REPORTERS.map(n=>`<button onclick="pickEng('${n}')">${n}</button>`).join("")}</div></div></main>`;return;}
+  APP().innerHTML=engHeader(ENGINEER)+`<main>
+    <div class="card center"><div class="hint">目前身分</div><div class="big">${esc(ENGINEER)}</div></div>
+    <div class="card"><button class="act" style="margin-top:0" onclick="location.hash='#pivot'">📋 派工總覽</button>
+    <button class="act" onclick="location.hash='#eng_pick'" id="goscan">🔧 選設備報工 / 新增工作</button>
+    <button class="act" onclick="location.hash='#myperf'">📊 我的工作效益</button></div></main>`;
+  $("#goscan").onclick=()=>engPickEquip();
 }
-let mLines=[{}];
+window.pickEng=function(n){ENGINEER=n;sessionStorage.setItem("bfy_eng",n);engHome();};
+function engPickEquip(){const eqs=eqArr();APP().innerHTML=engHeader(ENGINEER)+`<main><div class="card"><h3>選擇設備</h3>
+  <label>設備</label><select id="e_pick">${eqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select>
+  <button class="act" onclick="location.hash='#scan='+document.getElementById('e_pick').value">進入報工</button>
+  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash='#eng'">返回</button></div></main>`;}
+
+let pivotFilter="mine";
+function engPivot(){
+  const filt=`<label>檢視</label><select id="pv_f" onchange="pivotFilter=this.value;engPivot()">
+    <option value="mine" ${pivotFilter==="mine"?"selected":""}>只看我的（${esc(ENGINEER)}）</option>
+    <option value="all" ${pivotFilter==="all"?"selected":""}>全部</option>
+    ${REPORTERS.map(n=>`<option value="${n}" ${pivotFilter===n?"selected":""}>${n}</option>`).join("")}
+    <option value="unassigned" ${pivotFilter==="unassigned"?"selected":""}>未指派</option></select>`;
+  let ws=woArr().filter(w=>w.status!=="已完成");
+  if(pivotFilter==="mine")ws=ws.filter(w=>w.assignedTo===ENGINEER);
+  else if(pivotFilter==="unassigned")ws=ws.filter(w=>!w.assignedTo);
+  else if(pivotFilter!=="all")ws=ws.filter(w=>w.assignedTo===pivotFilter);
+  ws.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  APP().innerHTML=engHeader(ENGINEER)+`<main><div class="card"><h3>派工總覽</h3>${filt}
+    <div style="margin-top:12px" id="pv_list">${ws.length?ws.map(woCardEng).join(""):'<div class="hint">沒有符合的工單。</div>'}</div></div>
+    <button class="sec" style="width:100%" onclick="location.hash='#eng'">返回</button></main>`;
+}
+function woCardEng(w){return `<div class="wo"><div style="display:flex;justify-content:space-between;align-items:flex-start">
+  <div><div class="id">${esc(w.id||w._k)} <span class="pill src-${w.source||"保養"}">${esc(w.source||"")}</span></div>
+  <div class="meta">${esc(w.equipName||w.equip)} · ${esc(w.item||w.symptom||"")} · 指派:${esc(w.assignedTo||"未指派")}</div></div>
+  <span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div>
+  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash='#scan='+'${esc(w.equip)}';setTimeout(()=>receiveWO('${w._k}','${esc(w.equip)}'),300)">接收/回報</button></div>`;}
+
+let mLines=[{}],activeWO=null;
 function engScan(eqid){
   const eq=EQUIP[eqid];
-  if(!eq){APP().innerHTML=engHeader()+`<main><div class="card"><h3>找不到設備</h3><div class="hint">編號 ${esc(eqid)} 不在設備主檔。請洽後台或回首頁重選。</div><button class="sec" style="margin-top:12px" onclick="location.hash='#eng'">選擇設備</button></div></main>`;return;}
-  const open=woArr().filter(w=>w.equip===eqid && w.status!=="已完成").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  mLines=[{}];
-  APP().innerHTML=engHeader(eq.id)+`<main>
+  if(!ENGINEER){sessionStorage.setItem("bfy_after",location.hash);ENGINEER="";APP().innerHTML=engHeader("請選擇身分")+`<main><div class="card"><h3>請先選擇你的名字</h3><div class="namegrid">${REPORTERS.map(n=>`<button onclick="pickEng2('${n}','${esc(eqid)}')">${n}</button>`).join("")}</div></div></main>`;return;}
+  if(!eq){APP().innerHTML=engHeader()+`<main><div class="card"><h3>找不到設備</h3><div class="hint">編號 ${esc(eqid)} 不在主檔。</div><button class="sec" style="margin-top:12px" onclick="location.hash='#eng'">返回</button></div></main>`;return;}
+  const open=woArr().filter(w=>w.equip===eqid&&w.status!=="已完成").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  mLines=[{}];activeWO=null;
+  APP().innerHTML=engHeader(ENGINEER)+`<main>
     <div class="card"><div class="big">${esc(eq.name)}</div><div class="hint">${esc(eq.id)}　${esc(eq.line||"")}</div></div>
-    <div class="card"><h3>本設備未完成工單（點選接收回報）</h3>
-      <div id="wolist">${open.length?open.map(w=>woCard(w,eqid)).join(""):'<div class="hint">目前沒有指派的工單。可用下方「新增工作」直接回報。</div>'}</div>
-    </div>
-    <div class="card"><h3>＋ 新增工作並回報</h3>
-      <label>類別</label><select id="r_src"><option>保養</option><option>維修</option><option>優化</option></select>
-      <div id="rform"></div>
-    </div></main>`;
+    <div class="card"><h3>本設備未完成工單</h3><div>${open.length?open.map(w=>woCardRecv(w,eqid)).join(""):'<div class="hint">無，可用下方直接新增回報。</div>'}</div></div>
+    <div class="card"><h3>＋ 新增工作並回報</h3><label>類別</label><select id="r_src"><option>保養</option><option>維修</option><option>優化</option></select><div id="rform"></div></div></main>`;
   renderReportForm(eqid,null);
 }
-function woCard(w,eqid){
-  return `<div class="wo"><div style="display:flex;justify-content:space-between;align-items:center">
-    <div><div class="id">${esc(w.id||w._k)}</div><div class="meta">${esc(w.item||"")} · 指派:${esc(w.assignedTo||"—")}</div></div>
-    <span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div>
-    <button class="sec" style="margin-top:10px;width:100%" onclick="receiveWO('${w._k}','${eqid}')">接收此工單回報</button></div>`;
-}
-let activeWO=null;
-function receiveWO(k,eqid){activeWO=k;const w=WOS[k];if(w&&w.source)$("#r_src").value=w.source;toast("已帶入工單："+(w.id||k));renderReportForm(eqid,k);window.scrollTo(0,document.body.scrollHeight);}
-function renderReportForm(eqid,woKey){
-  const box=$("#rform");if(!box)return;
-  box.innerHTML=`
-    ${woKey?`<div class="hint">回報對象工單：<b>${esc((WOS[woKey]||{}).id||woKey)}</b>（不接收工單可直接填）</div>`:""}
-    <label>回報人</label><select id="r_by">${REPORTERS.map(n=>`<option>${n}</option>`).join("")}</select>
-    <label>項目 / 說明</label><input id="r_item" placeholder="保養項目或故障現象" value="${woKey?esc((WOS[woKey]||{}).item||""):""}">
+window.pickEng2=function(n,eqid){ENGINEER=n;sessionStorage.setItem("bfy_eng",n);engScan(eqid);};
+function woCardRecv(w,eqid){return `<div class="wo"><div class="id">${esc(w.id||w._k)} <span class="pill src-${w.source||"保養"}">${esc(w.source||"")}</span></div>
+  <div class="meta">${esc(w.item||w.symptom||"")} · 指派:${esc(w.assignedTo||"—")} <span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div>
+  <button class="sec" style="margin-top:10px;width:100%" onclick="receiveWO('${w._k}','${eqid}')">接收此工單回報</button></div>`;}
+window.receiveWO=function(k,eqid){activeWO=k;const w=WOS[k];if(w&&w.source&&$("#r_src"))$("#r_src").value=w.source;toast("已帶入工單");renderReportForm(eqid,k);const f=$("#rform");if(f)f.scrollIntoView({behavior:"smooth"});};
+function renderReportForm(eqid,woKey){const box=$("#rform");if(!box)return;
+  box.innerHTML=`${woKey?`<div class="hint">回報工單：<b>${esc((WOS[woKey]||{}).id||woKey)}</b></div>`:""}
+    <label>回報人</label><select id="r_by">${REPORTERS.map(n=>`<option ${n===ENGINEER?"selected":""}>${n}</option>`).join("")}</select>
+    <label>項目/說明</label><input id="r_item" placeholder="保養項目或故障現象" value="${woKey?esc((WOS[woKey]||{}).item||(WOS[woKey]||{}).symptom||""):""}">
     <div class="row"><div><label>進度</label><select id="r_prog"><option>進行中</option><option>已完成</option><option>待料</option></select></div>
     <div><label>工時(小時)</label><input id="r_hr" type="number" inputmode="decimal" step="0.5" value="1"></div></div>
     <label style="margin-top:12px">使用耗材</label><div id="r_mat"></div>
     <button class="sec" id="r_addmat" style="margin-top:4px">＋ 新增耗材</button>
     <label style="margin-top:12px">備註</label><textarea id="r_note" rows="2"></textarea>
     <button class="act" id="r_submit">送出報工</button>`;
-  drawMat();
-  $("#r_addmat").onclick=()=>{mLines.push({});drawMat();};
-  $("#r_submit").onclick=()=>submitReport(eqid,woKey);
-}
-function drawMat(){
-  const mats=matArr();const cats=[...new Set(mats.map(m=>catOf(m.id)))].sort();
-  const box=$("#r_mat");if(!box)return;box.innerHTML="";
-  mLines.forEach((ln,i)=>{
-    const items=mats.filter(m=>catOf(m.id)===(ln.cat||cats[0]));
-    const d=el("div",{className:"matline"});
+  drawMat();$("#r_addmat").onclick=()=>{mLines.push({});drawMat();};$("#r_submit").onclick=()=>submitReport(eqid,woKey);}
+function drawMat(){const mats=matArr();const cats=[...new Set(mats.map(m=>catOf(m.id)))].sort();const box=$("#r_mat");if(!box)return;box.innerHTML="";
+  mLines.forEach((ln,i)=>{const items=mats.filter(m=>catOf(m.id)===(ln.cat||cats[0]));const d=el("div",{className:"matline"});
     d.innerHTML=`<div><select data-i="${i}" class="mc">${cats.map(c=>`<option value="${c}" ${c===ln.cat?"selected":""}>${c} ${esc(catName(c))}</option>`).join("")}</select></div>
       <div><select data-i="${i}" class="mi">${items.map(m=>`<option value="${m.id}" ${m.id===ln.id?"selected":""}>${esc(m.name)}</option>`).join("")}</select></div>
       <div class="qy"><input data-i="${i}" class="mq" type="number" inputmode="numeric" min="0" placeholder="數量" value="${ln.qty||""}"></div>
-      <div class="rm"><button data-i="${i}" class="mx">×</button></div>`;
-    box.appendChild(d);
-  });
+      <div class="rm"><button data-i="${i}" class="mx">×</button></div>`;box.appendChild(d);});
   box.querySelectorAll(".mc").forEach(s=>s.onchange=e=>{mLines[+e.target.dataset.i]={cat:e.target.value};drawMat();});
   box.querySelectorAll(".mi").forEach(s=>s.onchange=e=>{mLines[+e.target.dataset.i].id=e.target.value;});
   box.querySelectorAll(".mq").forEach(s=>s.oninput=e=>{mLines[+e.target.dataset.i].qty=+e.target.value;});
-  box.querySelectorAll(".mx").forEach(b=>b.onclick=e=>{mLines.splice(+e.target.dataset.i,1);if(!mLines.length)mLines=[{}];drawMat();});
-}
+  box.querySelectorAll(".mx").forEach(b=>b.onclick=e=>{mLines.splice(+e.target.dataset.i,1);if(!mLines.length)mLines=[{}];drawMat();});}
 async function submitReport(eqid,woKey){
-  const by=$("#r_by").value, prog=$("#r_prog").value, hr=+$("#r_hr").value||0;
-  const item=$("#r_item").value, note=$("#r_note").value, src=$("#r_src").value;
-  const mats=matArr();
-  const materials=mLines.filter(l=>l.id&&l.qty).map(l=>{const m=mats.find(x=>x.id===l.id);return {id:l.id,name:m?m.name:l.id,qty:l.qty};});
+  const by=$("#r_by").value,prog=$("#r_prog").value,hr=+$("#r_hr").value||0,item=$("#r_item").value,note=$("#r_note").value,src=$("#r_src")?$("#r_src").value:"保養";
+  const mats=matArr();const materials=mLines.filter(l=>l.id&&l.qty).map(l=>{const m=mats.find(x=>x.id===l.id);return{id:l.id,name:m?m.name:l.id,qty:l.qty};});
   $("#r_submit").disabled=true;$("#r_submit").textContent="送出中…";
-  try{
-    const now=Date.now();
-    let woId=woKey;
-    if(!woKey){ // 新增臨時工單
-      const ref=ROOT.child("workorders").push();
-      await ref.set({id:"WO-"+new Date(now).toISOString().slice(0,10).replace(/-/g,"")+"-"+String(now).slice(-4),
-        source:src,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",item:item,assignedTo:by,priority:"中",
-        status:prog,createdAt:now,from:"engineer"});
-      woId=ref.key;
-    }else{
-      await ROOT.child("workorders/"+woKey).update({status:prog,item:item||WOS[woKey].item,finishAt:prog==="已完成"?now:null});
-    }
-    await ROOT.child("reports").push().set({woKey:woId,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",
-      reporter:by,progress:prog,hours:hr,materials:materials,note:note,source:src,createdAt:now});
-    $("#r_submit").className="act done";$("#r_submit").textContent="✓ 已送出";
-    toast("報工已送出，謝謝 "+by,"ok");
-    setTimeout(()=>engScan(eqid),900);
-  }catch(e){toast("送出失敗："+e.message,"bad");$("#r_submit").disabled=false;$("#r_submit").textContent="送出報工";}
+  try{const now=Date.now();let woId=woKey;
+    if(!woKey){const ref=ROOT.child("workorders").push();await ref.set({id:"WO-"+dStr(now).replace(/-/g,"")+"-"+String(now).slice(-4),source:src,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",item:item,assignedTo:by,priority:"中",status:prog,createdAt:now,from:"engineer"});woId=ref.key;}
+    else{await ROOT.child("workorders/"+woKey).update({status:prog,item:item||WOS[woKey].item,assignedTo:WOS[woKey].assignedTo||by,finishAt:prog==="已完成"?now:null});}
+    await ROOT.child("reports").push().set({woKey:woId,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",reporter:by,progress:prog,hours:hr,materials:materials,note:note,source:src,createdAt:now});
+    $("#r_submit").className="act done";$("#r_submit").textContent="✓ 已送出";toast("報工已送出，謝謝 "+by,"ok");
+    setTimeout(()=>location.hash="#pivot",900);
+  }catch(e){toast("送出失敗："+e.message,"bad");$("#r_submit").disabled=false;$("#r_submit").textContent="送出報工";}}
+
+function engPerf(){
+  const today=todayStr();const mine=repArr().filter(r=>r.reporter===ENGINEER);
+  const td=mine.filter(r=>dStr(r.createdAt)===today);
+  const wkAgo=Date.now()-6*864e5;const wk=mine.filter(r=>(r.createdAt||0)>=wkAgo);
+  const sum=arr=>({n:arr.length,done:arr.filter(r=>r.progress==="已完成").length,hr:arr.reduce((s,r)=>s+(r.hours||0),0)});
+  const t=sum(td),w=sum(wk);
+  APP().innerHTML=engHeader(ENGINEER)+`<main>
+    <div class="card"><h3>今日（${today}）</h3><div class="kpi"><div class="b"><div class="v">${t.n}</div><div class="l">報工筆數</div></div><div class="b"><div class="v">${t.done}</div><div class="l">已完成</div></div><div class="b"><div class="v">${t.hr}</div><div class="l">工時</div></div></div></div>
+    <div class="card"><h3>近 7 日</h3><div class="kpi"><div class="b"><div class="v">${w.n}</div><div class="l">報工筆數</div></div><div class="b"><div class="v">${w.done}</div><div class="l">已完成</div></div><div class="b"><div class="v">${w.hr}</div><div class="l">工時</div></div></div></div>
+    <button class="sec" style="width:100%" onclick="location.hash='#eng'">返回</button></main>`;
 }
 
-/* ============ 後台 ============ */
-function adminLogin(){
-  APP().innerHTML=`<div class="landing"><div class="logo">🔐</div><h1>後台登入</h1>
-    <label style="text-align:left">PIN 密碼</label><input id="pin" type="password" inputmode="numeric" placeholder="輸入 PIN">
-    <button class="b-eng" onclick="tryPin()">登入</button>
-    <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash=''">返回</button></div>`;
-  $("#pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin();});
+/* ===== 叫修入口 ===== */
+function faultView(code){
+  const area=AREAS[code];const eqs=eqArr().filter(e=>areaOf(e.id)===code);
+  APP().innerHTML=`<header><div class="t">🚨 設備報修 <small>${area?esc(area.name):esc(code)}</small></div><button onclick="location.hash=''">首頁</button></header><main>
+    <div class="card">${area?`<div class="big">${esc(area.name)}</div>`:`<div class="big">區域 ${esc(code)}</div>`}<div class="hint">填寫故障報修，送出後進入待派工。</div></div>
+    <div class="card">
+      <label>報修人</label><input id="fr_by" placeholder="你的名字">
+      <label>設備</label><select id="fr_eq">${eqs.length?eqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join(""):'<option value="">（此區無設備，請洽工務）</option>'}</select>
+      <label>故障現象</label><textarea id="fr_sym" rows="3" placeholder="描述異常狀況"></textarea>
+      <label>急迫度</label><select id="fr_urg"><option>中</option><option>高（停線）</option><option>低</option></select>
+      <button class="act" id="fr_submit">送出報修</button>
+    </div></main>`;
+  $("#fr_submit").onclick=()=>submitFault(code);
 }
-window.tryPin=function(){const p=$("#pin").value;if(p===(CONF.pin||DEFAULT_PIN)){adminAuthed=true;adminView();}else toast("PIN 錯誤","bad");};
+async function submitFault(code){
+  const by=$("#fr_by").value.trim(),eq=$("#fr_eq").value,sym=$("#fr_sym").value.trim(),urg=$("#fr_urg").value;
+  if(!eq){toast("此區無設備可選","bad");return;}if(!sym){toast("請描述故障現象","bad");return;}
+  $("#fr_submit").disabled=true;$("#fr_submit").textContent="送出中…";
+  try{const now=Date.now();const area=AREAS[code]||{};
+    await ROOT.child("workorders").push().set({id:"FR-"+dStr(now).replace(/-/g,"")+"-"+String(now).slice(-4),source:"故障叫修",equip:eq,equipName:(EQUIP[eq]||{}).name||"",item:sym,symptom:sym,urgency:urg,reporter:by,area:code,dept:area.dept||"",priority:urg.indexOf("高")>=0?"高":"中",status:"待派工",createdAt:now,from:"fault"});
+    APP().innerHTML=`<header><div class="t">🚨 設備報修</div></header><main><div class="card center"><div class="big" style="color:var(--ok)">✓ 報修已送出</div><div class="hint">工務已收到，將盡快派工處理。</div><button class="act" onclick="location.hash='#report='+'${esc(code)}'">再報一筆</button></div></main>`;
+  }catch(e){toast("送出失敗："+e.message,"bad");$("#fr_submit").disabled=false;$("#fr_submit").textContent="送出報修";}}
+
+/* ===== 後台 ===== */
+function adminLogin(){APP().innerHTML=`<div class="landing"><div class="logo">🔐</div><h1>後台登入</h1>
+  <label style="text-align:left">PIN 密碼</label><input id="pin" type="password" inputmode="numeric"><button class="b-eng" onclick="tryPin()">登入</button>
+  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash=''">返回</button></div>`;
+  $("#pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin();});}
+window.tryPin=function(){if($("#pin").value===(CONF.pin||DEFAULT_PIN)){adminAuthed=true;adminView();}else toast("PIN 錯誤","bad");};
 let adminTab="dispatch";
 function adminView(){
-  APP().innerHTML=`<header><div class="t">🐠 後台管理 <small>派工 · 主檔 · 成本</small></div><button onclick="adminAuthed=false;location.hash=''">登出</button></header>
-  <main><div class="tabs">
-    <button data-t="dispatch">派工</button><button data-t="master">主檔/單價</button>
-    <button data-t="cost">成本</button><button data-t="qr">QR列印</button></div>
-    <div id="adminBody"></div></main>`;
+  APP().innerHTML=`<header><div class="t">🐠 後台管理</div><button onclick="adminAuthed=false;location.hash=''">登出</button></header><main>
+    <div class="tabs">
+      <button data-t="dispatch">派工總覽</button><button data-t="reports">報工總表</button>
+      <button data-t="master">主檔/單價</button><button data-t="cost">成本</button>
+      <button data-t="perf">效益分析</button><button data-t="area">叫修區域</button><button data-t="qr">QR列印</button>
+    </div><div id="adminBody"></div></main>`;
   document.querySelectorAll(".tabs button").forEach(b=>{b.classList.toggle("on",b.dataset.t===adminTab);b.onclick=()=>{adminTab=b.dataset.t;adminView();};});
-  ({dispatch:admDispatch,master:admMaster,cost:admCost,qr:admQR}[adminTab])();
+  ({dispatch:admDispatch,reports:admReports,master:admMaster,cost:admCost,perf:admPerf,area:admArea,qr:admQR}[adminTab])();
 }
-function admDispatch(){
-  const eqs=eqArr();
-  $("#adminBody").innerHTML=`
-  <div class="card"><h3>新增派工單</h3>
-    <div class="row"><div><label>來源</label><select id="w_src"><option>保養</option><option>維修</option><option>優化</option></select></div>
-    <div><label>優先</label><select id="w_pri"><option>中</option><option>高</option><option>低</option></select></div></div>
+function admDispatch(){const eqs=eqArr();
+  $("#adminBody").innerHTML=`<div class="card"><h3>新增派工單</h3>
+    <div class="row"><div><label>來源</label><select id="w_src"><option>保養</option><option>維修</option><option>優化</option></select></div><div><label>優先</label><select id="w_pri"><option>中</option><option>高</option><option>低</option></select></div></div>
     <label>設備</label><select id="w_eq">${eqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select>
     <label>項目/說明</label><input id="w_item">
-    <div class="row"><div><label>指派工程師</label><select id="w_to"><option value="">未指派</option>${REPORTERS.map(n=>`<option>${n}</option>`).join("")}</select></div>
-    <div><label>到期日</label><input id="w_due" type="date"></div></div>
-    <button class="act" onclick="addWO()">建立工單</button>
-  </div>
-  <div class="card"><h3>未完成工單</h3><div id="wlist"></div></div>`;
+    <div class="row"><div><label>指派工程師</label><select id="w_to"><option value="">未指派</option>${REPORTERS.map(n=>`<option>${n}</option>`).join("")}</select></div><div><label>到期日</label><input id="w_due" type="date"></div></div>
+    <button class="act" onclick="addWO()">建立工單</button></div>
+    <div class="card"><h3>未完成工單</h3><div id="wlist"></div></div>`;
   const open=woArr().filter(w=>w.status!=="已完成").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  $("#wlist").innerHTML=open.length?open.map(w=>`<div class="wo"><div style="display:flex;justify-content:space-between">
-    <div><div class="id">${esc(w.id||w._k)} <span class="pill src-${w.source||"保養"}">${w.source||""}</span></div>
-    <div class="meta">${esc(w.equipName||w.equip)} · ${esc(w.item||"")} · 指派:${esc(w.assignedTo||"—")}</div></div>
-    <span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div></div>`).join(""):'<div class="hint">無未完成工單。</div>';
+  $("#wlist").innerHTML=open.length?open.map(w=>`<div class="wo"><div style="display:flex;justify-content:space-between"><div><div class="id">${esc(w.id||w._k)} <span class="pill src-${w.source||"保養"}">${esc(w.source||"")}</span></div><div class="meta">${esc(w.equipName||w.equip)} · ${esc(w.item||w.symptom||"")} · 指派:${esc(w.assignedTo||"—")}${w.urgency?(" · 急迫:"+esc(w.urgency)):""}</div></div><span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div>
+    <div style="margin-top:8px;display:flex;gap:6px"><select class="mini" style="flex:1" onchange="setWOStatus('${w._k}',this.value)"><option ${w.status==="待派工"?"selected":""}>待派工</option><option ${w.status==="已派工"?"selected":""}>已派工</option><option ${w.status==="進行中"?"selected":""}>進行中</option><option ${w.status==="待料"?"selected":""}>待料</option><option ${w.status==="已完成"?"selected":""}>已完成</option></select>
+    <select class="mini" onchange="setWOAssign('${w._k}',this.value)"><option value="">指派…</option>${REPORTERS.map(n=>`<option ${w.assignedTo===n?"selected":""}>${n}</option>`).join("")}</select>
+    <button class="mini danger" onclick="delWO('${w._k}')">刪</button></div></div>`).join(""):'<div class="hint">無未完成工單。</div>';
 }
-window.addWO=async function(){
-  const eq=$("#w_eq").value,now=Date.now();
-  const rec={id:"WO-"+new Date(now).toISOString().slice(0,10).replace(/-/g,"")+"-"+String(now).slice(-4),
-    source:$("#w_src").value,equip:eq,equipName:(EQUIP[eq]||{}).name||"",item:$("#w_item").value,
-    priority:$("#w_pri").value,assignedTo:$("#w_to").value,status:"待派工",createdAt:now};
-  if($("#w_due").value)rec.due=$("#w_due").value;
-  await ROOT.child("workorders").push().set(rec);toast("工單已建立 "+rec.id,"ok");admDispatch();
-};
-function admMaster(){
-  const seeded=Object.keys(EQUIP).length>0;
-  const mats=matArr();
-  $("#adminBody").innerHTML=`
-  <div class="card"><h3>主檔初始化</h3>
-    <div class="hint">設備：${Object.keys(EQUIP).length} 筆　耗材：${Object.keys(MAT).length} 筆　工時費率：${CONF.laborRate} 元/時</div>
-    ${!seeded?'<button class="act" onclick="seedAll()">一鍵初始化（寫入 78 設備＋118 耗材，單價先 1 元）</button>':'<button class="sec" style="margin-top:10px" onclick="seedAll()">重新寫入主檔（會覆蓋）</button>'}
-  </div>
-  <div class="card"><h3>工時費率</h3><div class="row"><input id="rate" type="number" value="${CONF.laborRate}"><button class="sec" onclick="saveRate()">儲存</button></div></div>
-  <div class="card"><h3>耗材單價（${mats.length} 筆）</h3>
-    <div class="row noprint"><input id="bulk" type="number" placeholder="一鍵全部設為此價"><button class="sec" onclick="bulkPrice()">套用全部</button></div>
-    <div class="hint">或於下表逐筆改，改完按 Enter 自動存。</div>
+window.addWO=async function(){const eq=$("#w_eq").value,now=Date.now();const rec={id:"WO-"+dStr(now).replace(/-/g,"")+"-"+String(now).slice(-4),source:$("#w_src").value,equip:eq,equipName:(EQUIP[eq]||{}).name||"",item:$("#w_item").value,priority:$("#w_pri").value,assignedTo:$("#w_to").value,status:$("#w_to").value?"已派工":"待派工",createdAt:now};if($("#w_due").value)rec.due=$("#w_due").value;await ROOT.child("workorders").push().set(rec);toast("工單已建立","ok");admDispatch();};
+window.setWOStatus=async function(k,v){await ROOT.child("workorders/"+k).update({status:v,finishAt:v==="已完成"?Date.now():null});toast("狀態已更新","ok");};
+window.setWOAssign=async function(k,v){await ROOT.child("workorders/"+k).update({assignedTo:v,status:(WOS[k].status==="待派工"&&v)?"已派工":WOS[k].status});toast("已指派 "+(v||"—"),"ok");};
+window.delWO=async function(k){if(!confirm("刪除此工單？"))return;await ROOT.child("workorders/"+k).remove();toast("已刪除","ok");admDispatch();};
+
+function admReports(){const reps=repArr().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  $("#adminBody").innerHTML=`<div class="card"><h3>報工總表（${reps.length} 筆）— 可改/刪</h3>
+    <div class="hint">測試資料可在此刪除。</div>
+    <div style="max-height:64vh;overflow:auto;margin-top:8px"><table><tr><th>時間</th><th>設備</th><th>人/進度</th><th>工時</th><th>耗材</th><th class="n">成本</th><th></th></tr>
+    ${reps.map(r=>{const c=costOf(r);const md=(r.materials||[]).map(m=>m.name+"x"+m.qty).join("、");
+      return `<tr><td>${dStr(r.createdAt)}<br><span class="mut">${new Date(r.createdAt||0).toTimeString().slice(0,5)}</span></td>
+      <td>${esc(r.equipName||r.equip)}<br><span class="pill src-${r.source||"保養"}">${esc(r.source||"")}</span></td>
+      <td>${esc(r.reporter)}<br><span class="pill s-${r.progress}">${esc(r.progress)}</span></td>
+      <td class="n">${r.hours}</td><td style="font-size:11px">${esc(md)}</td><td class="n">${nf(c.total)}</td>
+      <td><button class="mini" onclick="editRep('${r._k}')">改</button><br><button class="mini danger" style="margin-top:4px" onclick="delRep('${r._k}')">刪</button></td></tr>`;}).join("")||'<tr><td colspan=7 class="hint">尚無報工</td></tr>'}
+    </table></div></div>`;
+}
+window.delRep=async function(k){if(!confirm("刪除此報工紀錄？"))return;await ROOT.child("reports/"+k).remove();toast("已刪除","ok");admReports();};
+window.editRep=function(k){const r=REPS[k];const nh=prompt("工時(小時)",r.hours);if(nh===null)return;const np=prompt("進度(進行中/已完成/待料)",r.progress);if(np===null)return;const nn=prompt("備註",r.note||"");ROOT.child("reports/"+k).update({hours:+nh||0,progress:np,note:nn}).then(()=>{toast("已更新","ok");admReports();});};
+
+function admMaster(){const seeded=Object.keys(EQUIP).length>0;const mats=matArr();
+  $("#adminBody").innerHTML=`<div class="card"><h3>主檔初始化</h3><div class="hint">設備：${Object.keys(EQUIP).length}　耗材：${Object.keys(MAT).length}　費率：${CONF.laborRate} 元/時</div>
+    <button class="${seeded?"sec":"act"}" style="margin-top:10px" onclick="seedAll()">${seeded?"重新寫入主檔(覆蓋)":"一鍵初始化(78設備+118耗材)"}</button></div>
+    <div class="card"><h3>工時費率</h3><div class="row"><input id="rate" type="number" value="${CONF.laborRate}"><button class="sec" onclick="saveRate()">儲存</button></div></div>
+    <div class="card"><h3>耗材單價(${mats.length})</h3><div class="row noprint"><input id="bulk" type="number" placeholder="一鍵全部設為此價"><button class="sec" onclick="bulkPrice()">套用全部</button></div>
     <div style="max-height:50vh;overflow:auto;margin-top:8px"><table><tr><th>編號</th><th>品項</th><th class="n">單價</th></tr>
-    ${mats.map(m=>`<tr><td>${m.id}</td><td>${esc(m.name)}</td><td class="n"><input style="width:80px;padding:5px;text-align:right" type="number" value="${m.price!=null?m.price:1}" onchange="setPrice('${m.id}',this.value)"></td></tr>`).join("")}
-    </table></div>
-  </div>`;
-}
-window.seedAll=async function(){
-  if(!confirm("確定寫入主檔？(會覆蓋現有設備/耗材主檔)"))return;
-  const eo={};SEED_EQ.forEach(e=>eo[e.id]={id:e.id,name:e.name,line:e.line,status:e.status});
-  const mo={};SEED_MAT.forEach(m=>mo[m.id]={id:m.id,name:m.name,cat:m.cat,unit:m.unit,price:1});
-  await ROOT.child("equipment").set(eo);await ROOT.child("material").set(mo);
-  await ROOT.child("config").update({laborRate:CONF.laborRate||DEFAULT_RATE,pin:CONF.pin||DEFAULT_PIN});
-  await loadMasters();toast("主檔已初始化","ok");admMaster();
-};
-window.saveRate=async function(){const v=+$("#rate").value||DEFAULT_RATE;await ROOT.child("config/laborRate").set(v);CONF.laborRate=v;toast("已儲存 "+v,"ok");};
+    ${mats.map(m=>`<tr><td>${m.id}</td><td>${esc(m.name)}</td><td class="n"><input style="width:78px;padding:5px;text-align:right" type="number" value="${m.price!=null?m.price:1}" onchange="setPrice('${m.id}',this.value)"></td></tr>`).join("")}</table></div></div>`;}
+window.seedAll=async function(){if(!confirm("寫入主檔？(覆蓋設備/耗材/區域主檔)"))return;const eo={};SEED_EQ.forEach(e=>eo[e.id]={id:e.id,name:e.name,line:e.line,status:e.status});const mo={};SEED_MAT.forEach(m=>mo[m.id]={id:m.id,name:m.name,cat:m.cat,unit:m.unit,price:1});const ao={};DEFAULT_AREAS.forEach(a=>ao[a.code]=a);await ROOT.child("equipment").set(eo);await ROOT.child("material").set(mo);await ROOT.child("areas").update(ao);await ROOT.child("config").update({laborRate:CONF.laborRate||DEFAULT_RATE,pin:CONF.pin||DEFAULT_PIN});await loadMasters();toast("主檔已初始化","ok");admMaster();};
+window.saveRate=async function(){const v=+$("#rate").value||DEFAULT_RATE;await ROOT.child("config/laborRate").set(v);CONF.laborRate=v;toast("已儲存","ok");};
 window.bulkPrice=async function(){const v=+$("#bulk").value;if(isNaN(v))return toast("請輸入數字","bad");const o={};matArr().forEach(m=>o[m.id+"/price"]=v);await ROOT.child("material").update(o);await loadMasters();toast("全部單價設為 "+v,"ok");admMaster();};
 window.setPrice=async function(id,v){await ROOT.child("material/"+id+"/price").set(+v||0);if(MAT[id])MAT[id].price=+v||0;toast("已更新 "+id,"ok");};
-function costOf(r){const labor=(r.hours||0)*(CONF.laborRate||DEFAULT_RATE);let mat=0;(r.materials||[]).forEach(m=>{const p=(MAT[m.id]||{}).price;mat+=(m.qty||0)*(p!=null?p:0);});return {labor,mat,total:labor+mat};}
-function admCost(){
-  const reps=repArr();let tot=0,byEq={},byMon={},byType={保養:0,維修:0,優化:0};
-  reps.forEach(r=>{const c=costOf(r);tot+=c.total;const e=r.equipName||r.equip||"—";byEq[e]=(byEq[e]||0)+c.total;
-    const mon=new Date(r.createdAt||0).toISOString().slice(0,7);byMon[mon]=(byMon[mon]||0)+c.total;
-    if(r.source&&byType[r.source]!=null)byType[r.source]+=c.total;});
-  const eqRows=Object.entries(byEq).sort((a,b)=>b[1]-a[1]).slice(0,40);
-  $("#adminBody").innerHTML=`
-  <div class="card center"><div class="hint">累計報工成本（${reps.length} 筆）</div><div class="big" style="font-size:28px">${nf(tot)} 元</div>
-    <button class="sec noprint" style="margin-top:10px" onclick="exportCSV()">匯出 CSV</button></div>
-  <div class="card"><h3>保養 vs 維修 vs 優化</h3><table><tr><th>類別</th><th class="n">成本</th></tr>
-    ${Object.entries(byType).map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")}</table></div>
-  <div class="card"><h3>各月成本</h3><table><tr><th>月份</th><th class="n">成本</th></tr>
-    ${Object.entries(byMon).sort().map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")||'<tr><td colspan=2 class="hint">尚無資料</td></tr>'}</table></div>
-  <div class="card"><h3>設備別成本</h3><table><tr><th>設備</th><th class="n">成本</th></tr>
-    ${eqRows.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${nf(v)}</td></tr>`).join("")||'<tr><td colspan=2 class="hint">尚無資料</td></tr>'}</table></div>`;
-}
-window.exportCSV=function(){
-  const cols=["時間","設備","設備名稱","來源","回報人","進度","工時","耗材明細","工時成本","耗材成本","總成本"];
-  const rows=[cols.join(",")];
-  repArr().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(r=>{const c=costOf(r);
-    const md=(r.materials||[]).map(m=>m.name+"x"+m.qty).join(" / ");
-    rows.push([new Date(r.createdAt||0).toLocaleString(),r.equip,r.equipName,r.source||"",r.reporter,r.progress,r.hours,md,c.labor,c.mat,c.total].map(x=>`"${(x==null?"":String(x)).replace(/"/g,'""')}"`).join(","));});
-  const blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv"});
-  const a=el("a",{href:URL.createObjectURL(blob),download:"工務報工_"+new Date().toISOString().slice(0,10)+".csv"});a.click();
-};
-function admQR(){
-  const eqs=eqArr();
-  $("#adminBody").innerHTML=`<div class="card noprint"><h3>QR 產生與列印</h3>
-    <div class="hint">QR 內容＝目前網址 ＋ #scan=設備編號（自動帶入，部署後即正確）。<br>目前網址：${baseUrl()}</div>
-    <button class="sec" style="margin-top:10px" onclick="window.print()">🖨️ 列印全部 QR（${eqs.length} 台）</button></div>
-    <div class="card"><div class="qrgrid" id="qrgrid"></div></div>`;
-  const g=$("#qrgrid");
-  eqs.forEach(e=>{const cell=el("div",{className:"qrcell"});const box=el("div");cell.appendChild(box);
-    const lbl=el("div",{className:"lbl",textContent:e.id});const nm=el("div",{className:"nm",textContent:e.name});
-    cell.appendChild(lbl);cell.appendChild(nm);g.appendChild(cell);
-    new QRCode(box,{text:baseUrl()+"#scan="+e.id,width:110,height:110,correctLevel:QRCode.CorrectLevel.M});});
-}
 
-/* ============ 啟動 ============ */
-(async function(){
-  try{await loadMasters();listenLive();}catch(e){console.error(e);toast("連線 Firebase 失敗，請檢查網路","bad");}
-  route();
-})();
-</script>
-</body>
-</html>
+function costOf(r){const labor=(r.hours||0)*(CONF.laborRate||DEFAULT_RATE);let mat=0;(r.materials||[]).forEach(m=>{const p=(MAT[m.id]||{}).price;mat+=(m.qty||0)*(p!=null?p:0);});return{labor,mat,total:labor+mat};}
+function admCost(){const reps=repArr();let tot=0,byMon={},byType={保養:0,維修:0,優化:0,故障叫修:0};
+  reps.forEach(r=>{const c=costOf(r);tot+=c.total;const mon=dStr(r.createdAt).slice(0,7);byMon[mon]=(byMon[mon]||0)+c.total;if(byType[r.source]!=null)byType[r.source]+=c.total;});
+  $("#adminBody").innerHTML=`<div class="card center"><div class="hint">累計報工成本(${reps.length}筆)</div><div class="big" style="font-size:28px">${nf(tot)} 元</div><button class="sec noprint" style="margin-top:10px" onclick="exportCSV()">匯出 CSV</button></div>
+    <div class="card"><h3>類別成本</h3><table><tr><th>類別</th><th class="n">成本</th></tr>${Object.entries(byType).map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")}</table></div>
+    <div class="card"><h3>各月成本</h3><table><tr><th>月份</th><th class="n">成本</th></tr>${Object.entries(byMon).sort().map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")||'<tr><td colspan=2 class="hint">尚無</td></tr>'}</table></div>`;}
+window.exportCSV=function(){const cols=["時間","設備","設備名稱","來源","回報人","進度","工時","耗材明細","工時成本","耗材成本","總成本"];const rows=[cols.join(",")];
+  repArr().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(r=>{const c=costOf(r);const md=(r.materials||[]).map(m=>m.name+"x"+m.qty).join(" / ");rows.push([new Date(r.createdAt||0).toLocaleString(),r.equip,r.equipName,r.source||"",r.reporter,r.progress,r.hours,md,c.labor,c.mat,c.total].map(x=>`"${(x==null?"":String(x)).replace(/"/g,'""')}"`).join(","));});
+  const blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv"});const a=el("a",{href:URL.createObjectURL(blob),download:"工務報工_"+todayStr()+".csv"});a.click();};
+
+function admPerf(){
+  const d=$("#perfDate")?$("#perfDate").value:todayStr();
+  const reps=repArr();
+  // 工程師別(指定日)
+  const byEngDay={};REPORTERS.forEach(n=>byEngDay[n]={n:0,done:0,hr:0,cost:0});
+  reps.filter(r=>dStr(r.createdAt)===d).forEach(r=>{const c=costOf(r);const e=byEngDay[r.reporter];if(e){e.n++;if(r.progress==="已完成")e.done++;e.hr+=r.hours||0;e.cost+=c.total;}});
+  // 工程師別(累計)
+  const byEng={};REPORTERS.forEach(n=>byEng[n]={n:0,hr:0,cost:0});reps.forEach(r=>{const c=costOf(r);const e=byEng[r.reporter];if(e){e.n++;e.hr+=r.hours||0;e.cost+=c.total;}});
+  // 設備別
+  const byEq={};reps.forEach(r=>{const k=r.equip||"—";byEq[k]=byEq[k]||{name:r.equipName||k,n:0,fix:0,maint:0,hr:0,cost:0};const c=costOf(r);byEq[k].n++;if(r.source==="維修"||r.source==="故障叫修")byEq[k].fix++;if(r.source==="保養")byEq[k].maint++;byEq[k].hr+=r.hours||0;byEq[k].cost+=c.total;});
+  const eqTop=Object.entries(byEq).sort((a,b)=>b[1].cost-a[1].cost).slice(0,20);
+  const fixTop=Object.entries(byEq).sort((a,b)=>b[1].fix-a[1].fix).slice(0,10).filter(x=>x[1].fix>0);
+  // 最燒耗材
+  const byMat={};reps.forEach(r=>(r.materials||[]).forEach(m=>{const p=(MAT[m.id]||{}).price||0;byMat[m.id]=byMat[m.id]||{name:m.name,qty:0,cost:0};byMat[m.id].qty+=m.qty||0;byMat[m.id].cost+=(m.qty||0)*p;}));
+  const matTop=Object.entries(byMat).sort((a,b)=>b[1].cost-a[1].cost).slice(0,10);
+  $("#adminBody").innerHTML=`
+  <div class="card"><h3>工程師當日效益</h3><label>日期</label><input id="perfDate" type="date" value="${d}" onchange="admPerf()">
+    <table style="margin-top:10px"><tr><th>工程師</th><th class="n">筆數</th><th class="n">完成</th><th class="n">工時</th><th class="n">成本</th></tr>
+    ${REPORTERS.map(n=>{const e=byEngDay[n];return `<tr><td>${n}</td><td class="n">${e.n}</td><td class="n">${e.done}</td><td class="n">${e.hr}</td><td class="n">${nf(e.cost)}</td></tr>`;}).join("")}</table></div>
+  <div class="card"><h3>工程師累計效益</h3><table><tr><th>工程師</th><th class="n">總筆數</th><th class="n">總工時</th><th class="n">總成本</th></tr>
+    ${REPORTERS.map(n=>{const e=byEng[n];return `<tr><td>${n}</td><td class="n">${e.n}</td><td class="n">${e.hr}</td><td class="n">${nf(e.cost)}</td></tr>`;}).join("")}</table></div>
+  <div class="card"><h3>設備別成本(前20)</h3><table><tr><th>設備</th><th class="n">次數</th><th class="n">維修</th><th class="n">保養</th><th class="n">工時</th><th class="n">成本</th></tr>
+    ${eqTop.map(([k,v])=>`<tr><td>${esc(v.name)}</td><td class="n">${v.n}</td><td class="n">${v.fix}</td><td class="n">${v.maint}</td><td class="n">${v.hr}</td><td class="n">${nf(v.cost)}</td></tr>`).join("")||'<tr><td colspan=6 class="hint">尚無</td></tr>'}</table></div>
+  <div class="card"><h3>最常維修設備 Top10</h3><table><tr><th>設備</th><th class="n">維修次數</th></tr>${fixTop.map(([k,v])=>`<tr><td>${esc(v.name)}</td><td class="n">${v.fix}</td></tr>`).join("")||'<tr><td colspan=2 class="hint">尚無</td></tr>'}</table></div>
+  <div class="card"><h3>最燒耗材 Top10</h3><table><tr><th>耗材</th><th class="n">用量</th><th class="n">金額</th></tr>${matTop.map(([k,v])=>`<tr><td>${esc(v.name)}</td><td class="n">${v.qty}</td><td class="n">${nf(v.cost)}</td></tr>`).join("")||'<tr><td colspan=3 class="hint">尚無</td></tr>'}</table></div>`;
+}
+window.admPerf=admPerf;
+
+function admArea(){const eqs=eqArr();
+  $("#adminBody").innerHTML=`<div class="card"><h3>叫修區域管理</h3><div class="hint">每區一張 QR；報修時設備依「設備編號末兩碼＝區碼」自動篩選。</div>
+    <table style="margin-top:8px"><tr><th>區碼</th><th>區名</th><th>課別</th><th class="n">設備數</th><th></th></tr>
+    ${areaArr().map(a=>`<tr><td>${esc(a.code)}</td><td>${esc(a.name)}</td><td>${esc(a.dept||"")}</td><td class="n">${eqs.filter(e=>areaOf(e.id)===a.code).length}</td><td><button class="mini danger" onclick="delArea('${esc(a.code)}')">刪</button></td></tr>`).join("")}</table></div>
+    <div class="card"><h3>新增/修改區域</h3><div class="row"><div><label>區碼(設備末兩碼)</label><input id="a_code" placeholder="如 2S"></div><div><label>課別</label><input id="a_dept" placeholder="如 製二課"></div></div>
+    <label>區名</label><input id="a_name" placeholder="如 製二課 調味區">
+    <button class="act" onclick="saveArea()">儲存區域</button></div>`;}
+window.saveArea=async function(){const code=$("#a_code").value.trim().toUpperCase();if(!code)return toast("請填區碼","bad");await ROOT.child("areas/"+code).set({code:code,name:$("#a_name").value.trim()||code,dept:$("#a_dept").value.trim()});await loadMasters();toast("已儲存區域 "+code,"ok");admArea();};
+window.delArea=async function(code){if(!confirm("刪除區域 "+code+"？"))return;await ROOT.child("areas/"+code).remove();await loadMasters();toast("已刪除","ok");admArea();};
+
+function admQR(){const eqs=eqArr();const ars=areaArr();
+  $("#adminBody").innerHTML=`<div class="card noprint"><h3>QR 產生與列印</h3><div class="hint">目前網址：${baseUrl()}<br>設備QR＝報工(#scan=)；區域QR＝叫修報修(#report=)。</div>
+    <button class="sec" style="margin-top:8px" onclick="window.print()">🖨️ 列印此頁全部 QR</button></div>
+    <div class="card"><h3>區域叫修 QR（${ars.length}）</h3><div class="qrgrid" id="qra"></div></div>
+    <div class="card"><h3>設備報工 QR（${eqs.length}）</h3><div class="qrgrid" id="qre"></div></div>`;
+  const ga=$("#qra");ars.forEach(a=>{const cell=el("div",{className:"qrcell"});const box=el("div");cell.appendChild(box);cell.appendChild(el("div",{className:"lbl",textContent:"報修 "+a.code}));cell.appendChild(el("div",{className:"nm",textContent:a.name}));ga.appendChild(cell);new QRCode(box,{text:baseUrl()+"#report="+a.code,width:110,height:110,correctLevel:QRCode.CorrectLevel.M});});
+  const ge=$("#qre");eqs.forEach(e=>{const cell=el("div",{className:"qrcell"});const box=el("div");cell.appendChild(box);cell.appendChild(el("div",{className:"lbl",textContent:e.id}));cell.appendChild(el("div",{className:"nm",textContent:e.name}));ge.appendChild(cell);new QRCode(box,{text:baseUrl()+"#scan="+e.id,width:110,height:110,correctLevel:QRCode.CorrectLevel.M});});}
+
+(async function(){try{await loadMasters();listenLive();}catch(e){console.error(e);toast("連線 Firebase 失敗","bad");}route();})();
+</script></body></html>
