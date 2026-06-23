@@ -72,10 +72,10 @@ function todayStr(){return new Date().toISOString().slice(0,10);}
 function dStr(ts){return new Date(ts||0).toISOString().slice(0,10);}
 
 async function loadMasters(){
-  const [e,m,c,a,p]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get(),ROOT.child("areas").get(),ROOT.child("plans").get()]);
+  const [e,m,c,a,pl]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get(),ROOT.child("areas").get(),ROOT.child("plans").get()]);
   EQUIP=e.val()||{};MAT=m.val()||{};CONF=Object.assign({laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},c.val()||{});
   AREAS=a.val()||{};if(!Object.keys(AREAS).length){DEFAULT_AREAS.forEach(x=>AREAS[x.code]=x);}
-  PLANS=p.val()||{};
+  PLANS=pl.val()||{};
 }
 function listenLive(){ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});ROOT.child("plans").on("value",s=>{PLANS=s.val()||{};rerender();});}
 const eqArr=()=>Object.values(EQUIP).sort((a,b)=>a.id<b.id?-1:1);
@@ -122,10 +122,43 @@ function engHome(){
   $("#goscan").onclick=()=>engPickEquip();
 }
 window.pickEng=function(n){ENGINEER=n;sessionStorage.setItem("bfy_eng",n);engHome();};
-function engPickEquip(){const eqs=eqArr();APP().innerHTML=engHeader(ENGINEER)+`<main><div class="card"><h3>選擇設備</h3>
-  <label>設備</label><select id="e_pick">${eqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select>
-  <button class="act" onclick="location.hash='#scan='+document.getElementById('e_pick').value">進入報工</button>
-  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash='#eng'">返回</button></div></main>`;}
+let pickAreaCode="";
+function engPickEquip(){
+  const areas=areaArr();
+  if(!pickAreaCode&&areas.length)pickAreaCode=areas[0].code;
+  const areaEqs=eqArr().filter(e=>areaOf(e.id)===pickAreaCode);
+  const curArea=areas.find(a=>a.code===pickAreaCode);
+  APP().innerHTML=engHeader(ENGINEER)+`<main>
+    <div class="card"><h3>選擇區域</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        ${areas.map(a=>`<button class="sec" style="${a.code===pickAreaCode?"background:var(--navy);color:#fff;":""}" onclick="pickAreaCode='${a.code}';engPickEquip()">${esc(a.name)}</button>`).join("")}
+      </div></div>
+    <div class="card"><h3>${curArea?esc(curArea.name):esc(pickAreaCode)}　設備（${areaEqs.length}台）</h3>
+      ${areaEqs.length
+        ?`<select id="e_pick" style="margin-bottom:10px">${areaEqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select>
+          <button class="act" style="margin-top:0" onclick="location.hash='#scan='+document.getElementById('e_pick').value">進入報工</button>`
+        :'<div class="hint">此區暫無設備，可用下方新增。</div>'}
+    </div>
+    <div class="card"><h3>新增設備到此區</h3>
+      <div class="row"><div><label>設備名稱</label><input id="ne_name" placeholder="如 輸送機A"></div>
+      <div><label>類別碼(2碼)</label><input id="ne_cat" placeholder="如 CV" maxlength="2" style="text-transform:uppercase"></div></div>
+      <div class="hint">編號自動產生：類別碼＋流水號＋線別＋區碼 (${esc(pickAreaCode)})</div>
+      <button class="sec" style="width:100%;margin-top:10px" onclick="addEqToArea('${esc(pickAreaCode)}')">＋ 新增設備</button>
+    </div>
+    <button class="sec" style="width:100%" onclick="engHome()">← 返回</button></main>`;
+}
+window.addEqToArea=async function(areaCode){
+  const nm=((document.getElementById("ne_name")||{}).value||"").trim();
+  const cat=((document.getElementById("ne_cat")||{}).value||"XX").trim().toUpperCase().slice(0,2);
+  if(!nm)return toast("請填設備名稱","bad");
+  const existing=eqArr().filter(e=>e.id.startsWith(cat)&&e.id.endsWith(areaCode));
+  const seq=String(existing.length+1).padStart(2,"0");
+  const lineMap={"1E":"RF1","1G":"RF1","2S":"PR2","3B":"PK3","3P":"PK3"};
+  const newId=`${cat}_${seq}${lineMap[areaCode]||"GN0"}${areaCode}`;
+  if(EQUIP[newId])return toast("編號 "+newId+" 已存在","bad");
+  await ROOT.child("equipment/"+newId).set({id:newId,name:nm,line:(AREAS[areaCode]||{}).dept||"",status:"使用中"});
+  await loadMasters();toast("已新增 "+newId+"　"+nm,"ok");engPickEquip();
+};
 
 let pivotFilter="mine";
 function engPivot(){
@@ -170,7 +203,9 @@ window.receiveWO=function(k,eqid){activeWO=k;const w=WOS[k];if(w&&w.source&&$("#
 function renderReportForm(eqid,woKey){const box=$("#rform");if(!box)return;
   box.innerHTML=`${woKey?`<div class="hint">回報工單：<b>${esc((WOS[woKey]||{}).id||woKey)}</b></div>`:""}
     <label>回報人</label><select id="r_by">${REPORTERS.map(n=>`<option ${n===ENGINEER?"selected":""}>${n}</option>`).join("")}</select>
-    <label>項目/說明</label><input id="r_item" placeholder="保養項目或故障現象" value="${woKey?esc((WOS[woKey]||{}).item||(WOS[woKey]||{}).symptom||""):""}">
+    <label>項目/說明（可選保養清單或手填）</label>
+    <input id="r_item" list="r_itemlist" placeholder="保養項目或故障現象（可打字搜尋）" value="${woKey?esc((WOS[woKey]||{}).item||(WOS[woKey]||{}).symptom||''):''}">
+    <datalist id="r_itemlist">${planArr().filter(p=>p.eqId===eqid).sort((a,b)=>(a.seq||0)-(b.seq||0)).map(p=>`<option value="${esc(p.item)}">`).join("")}</datalist>
     <div class="row"><div><label>進度</label><select id="r_prog"><option>進行中</option><option>已完成</option><option>待料</option></select></div>
     <div><label>工時(小時)</label><input id="r_hr" type="number" inputmode="decimal" step="0.5" value="1"></div></div>
     <label style="margin-top:12px">使用耗材</label><div id="r_mat"></div>
@@ -344,32 +379,32 @@ function admPlan(){
   $("#adminBody").innerHTML=`
   <div class="card"><h3>保養計畫</h3>
     <div class="hint">計畫項數：${plans.length}　到期：${due.length}　未產生工單：${ungen.length}　即將到期(14天)：${soon.length}</div>
-    ${!seeded?'<button class="act" onclick="importPlans()">匯入保養計畫（312 項，依當年度排定月份）</button>':'<button class="sec" style="margin-top:8px" onclick="importPlans()">重新匯入計畫(覆蓋,重置到期日)</button>'}
+    ${!seeded?'<button class="act" onclick="importPlans()">匯入保養計畫（312 項）</button>':'<button class="sec" style="margin-top:8px" onclick="importPlans()">重新匯入(覆蓋)</button>'}
   </div>
   ${seeded?`<div class="card"><h3>到期待產生（${ungen.length}）</h3>
     <div class="row noprint"><select id="genAssign"><option value="">產生時不指派</option>${REPORTERS.map(n=>`<option>${n}</option>`).join("")}</select>
     <button class="act" style="margin-top:0" onclick="genDuePlans()">一鍵產生到期保養工單</button></div>
-    <div class="hint">產生後到「派工總覽」可個別改指派；工程師報「已完成」後，計畫下次到期日自動往後滾。</div>
+    <div class="hint">工程師報「已完成」後，下次到期日自動往後滾。</div>
     <div style="max-height:52vh;overflow:auto;margin-top:10px"><table><tr><th>設備</th><th>保養項目</th><th>週期</th><th>下次到期</th><th>預設指派</th></tr>
-    ${due.slice(0,250).map(p=>`<tr><td>${esc(p.eqName)}<br><span class="mut">${esc(p.eqId)}</span></td><td style="font-size:12px">${esc(p.item)}</td><td>${esc(p.cycle)}</td><td>${esc(p.nextDue)}${openWOForPlan(p.id)?' <span class="pill s-進行中">已產生</span>':''}</td><td><select class="mini" onchange="setPlanAssignee('${p._k}',this.value)"><option value="">—</option>${REPORTERS.map(n=>`<option ${p.assignedTo===n?"selected":""}>${n}</option>`).join("")}</select></td></tr>`).join("")||'<tr><td colspan=5 class="hint">目前沒有到期項目</td></tr>'}
+    ${due.slice(0,300).map(p=>`<tr><td>${esc(p.eqName)}<br><span class="mut">${esc(p.eqId)}</span></td><td style="font-size:12px">${esc(p.item)}</td><td>${esc(p.cycle)}</td><td>${esc(p.nextDue)}${openWOForPlan(p.id)?' <span class="pill s-進行中">已產生</span>':''}</td><td><select class="mini" onchange="setPlanAssignee('${p._k}',this.value)"><option value="">—</option>${REPORTERS.map(n=>`<option ${p.assignedTo===n?"selected":""}>${n}</option>`).join("")}</select></td></tr>`).join("")||'<tr><td colspan=5 class="hint">目前沒有到期項目</td></tr>'}
     </table></div></div>`:''}`;
 }
 window.admPlan=admPlan;
 window.importPlans=async function(){
-  if(!confirm("匯入/重置保養計畫？(會覆蓋現有計畫到期日與指派)"))return;
+  if(!confirm("匯入/重置保養計畫？"))return;
   const n=new Date(),from=new Date(n.getFullYear(),n.getMonth(),1),o={};
   SEED_PLANS.forEach(p=>{const pid=p.eqId+"-"+(p.seq||"x");o[pid]={id:pid,eqId:p.eqId,eqName:p.eqName,seq:p.seq,item:p.item,cycle:p.cycle,cycleDays:p.cycleDays,months:p.months,assignedTo:"",lastDone:null,nextDue:nextDueFrom(p.months,from),active:true};});
-  await ROOT.child("plans").set(o);await loadMasters();toast("已匯入 "+Object.keys(o).length+" 項保養計畫","ok");admPlan();
+  await ROOT.child("plans").set(o);await loadMasters();toast("已匯入 "+Object.keys(o).length+" 項","ok");admPlan();
 };
-window.setPlanAssignee=async function(k,v){await ROOT.child("plans/"+k+"/assignedTo").set(v);if(PLANS[k])PLANS[k].assignedTo=v;toast("已設定預設指派","ok");};
+window.setPlanAssignee=async function(k,v){await ROOT.child("plans/"+k+"/assignedTo").set(v);if(PLANS[k])PLANS[k].assignedTo=v;toast("已設定","ok");};
 window.genDuePlans=async function(){
   const ga=$("#genAssign")?$("#genAssign").value:"";
   const due=planArr().filter(planDue).filter(p=>!openWOForPlan(p.id));
-  if(!due.length){toast("沒有需要產生的到期工單","");return;}
-  if(!confirm("產生 "+due.length+" 張到期保養工單？"))return;
+  if(!due.length)return toast("沒有到期待產生的工單","");
+  if(!confirm("產生 "+due.length+" 張？"))return;
   const now=Date.now();let cnt=0;
   for(const p of due){const who=ga||p.assignedTo||"";
-    await ROOT.child("workorders").push().set({id:"PM-"+p.id+"-"+String(now).slice(-4),source:"保養",equip:p.eqId,equipName:p.eqName,item:p.item,planId:p.id,assignedTo:who,priority:"中",status:who?"已派工":"待派工",due:p.nextDue,createdAt:now});cnt++;}
+    await ROOT.child("workorders").push().set({id:"PM-"+p.id.slice(-8)+"-"+String(now).slice(-4),source:"保養",equip:p.eqId,equipName:p.eqName,item:p.item,planId:p.id,assignedTo:who,priority:"中",status:who?"已派工":"待派工",due:p.nextDue,createdAt:now});cnt++;}
   toast("已產生 "+cnt+" 張保養工單","ok");admPlan();
 };
 function admArea(){const eqs=eqArr();
