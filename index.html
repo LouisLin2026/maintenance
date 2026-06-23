@@ -51,9 +51,21 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 6px;b
 .photo-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:70;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:16px}
 .photo-overlay img{max-width:95vw;max-height:88vh;border-radius:10px;box-shadow:0 4px 32px #000a}
 .inv-section{margin-bottom:6px}
-.inv-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.inv-tbl-hdr{display:grid;grid-template-columns:72px 100px 1fr 108px 120px 52px 44px auto;gap:4px;padding:6px 8px;background:var(--sub);border-radius:7px;font-size:11px;font-weight:700;color:var(--mut);margin:6px 0 2px;position:sticky;top:0;z-index:2}
+.inv-tbl-row{display:grid;grid-template-columns:72px 100px 1fr 108px 120px 52px 44px auto;gap:4px;align-items:center;padding:7px 8px;border-bottom:1px solid var(--line);font-size:13px}
+.inv-tbl-row:hover{background:#f6fdfc}
+@media(max-width:700px){.inv-tbl-hdr,.inv-tbl-row{grid-template-columns:60px 1fr 80px 70px auto;gap:3px}}
+.col-id{font-size:11px;color:var(--navy);font-weight:700;word-break:break-all}
+.col-cat{font-size:11px;color:#555}
+.col-nm .sub{font-size:10px;color:var(--mut);margin-top:1px}
+.col-eq{font-size:10px;color:#0e5c63;background:#e0f2f1;border-radius:4px;padding:1px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.col-loc input{width:78px;padding:4px 6px;font-size:12px}
+.col-qty{font-size:16px;font-weight:800;text-align:center}
+.col-unit{font-size:11px;color:var(--mut);text-align:center}
+.col-act{display:flex;gap:3px;flex-shrink:0}
+.inv-row{display:none}
 .inv-row:last-child{border:none}
-.inv-nm{flex:2;min-width:100px;font-size:14px;font-weight:600}
+.inv-nm{display:none}
 .inv-cat{flex:0 0 52px;font-size:11px;color:var(--mut);text-align:center;background:#f0f6f5;border-radius:5px;padding:2px 4px}
 .inv-stk{flex:0 0 44px;font-size:20px;font-weight:800;color:var(--navy);text-align:center}
 .inv-ctrl{display:flex;gap:5px;align-items:center}
@@ -70,6 +82,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 6px;b
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head><body>
 <div id="app"></div><div id="toast" class="toast"></div>
 <script>
@@ -80,7 +93,7 @@ const DEFAULT_PIN="90632323",DEFAULT_RATE=600;
 const DEFAULT_AREAS=[{code:"1E",name:"製一課 成型區",dept:"製一課"},{code:"1G",name:"製一課 粉碎區",dept:"製一課"},{code:"2S",name:"製二課 調味區",dept:"製二課"},{code:"3B",name:"製三課 內包裝區",dept:"製三課"},{code:"3P",name:"製三課 外包裝區",dept:"製三課"}];
 const SEED_PLANS=[{"eqId": "EX_01RF1E", "eqName": "成型機A", "seq": "1", "item": "清潔冷卻風扇入口過濾網。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_01RF1E", "eqName": "成型機A", "seq": "2", "item": "圖控箱內以空氣槍吹除沾附粉末。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_01RF1E", "eqName": "成型機A", "seq": "3", "item": "檢視供料機齒輪箱內狀況，視狀況塗抹潤滑油。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_01RF1E", "eqName": "成型機A", "seq": "4", "item": "量測加熱器內孔尺寸，檢查磨耗狀況。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_01RF1E", "eqName": "成型機A", "seq": "5", "item": "檢視減速機潤滑油之油量，視狀況添加。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_02RF1E", "eqName": "成型機B", "seq": "1", "item": "清潔冷卻風扇入口過濾網。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_02RF1E", "eqName": "成型機B", "seq": "2", "item": "圖控箱內以空氣槍吹除沾附粉末。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_02RF1E", "eqName": "成型機B", "seq": "3", "item": "檢視供料機齒輪箱內狀況，視狀況塗抹潤滑油。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_02RF1E", "eqName": "成型機B", "seq": "4", "item": "量測加熱器內孔尺寸，檢查磨耗狀況。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_02RF1E", "eqName": "成型機B", "seq": "5", "item": "檢視減速機潤滑油之油量，視狀況添加。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_03RF1E", "eqName": "成型機C", "seq": "1", "item": "清潔冷卻風扇入口過濾網。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_03RF1E", "eqName": "成型機C", "seq": "2", "item": "圖控箱內以空氣槍吹除沾附粉末。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_03RF1E", "eqName": "成型機C", "seq": "3", "item": "檢視供料機齒輪箱內狀況，視狀況塗抹潤滑油。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_03RF1E", "eqName": "成型機C", "seq": "4", "item": "量測加熱器內孔尺寸，檢查磨耗狀況。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_03RF1E", "eqName": "成型機C", "seq": "5", "item": "檢視減速機潤滑油之油量，視狀況添加。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_04RF1E", "eqName": "成型機D", "seq": "1", "item": "清潔冷卻風扇入口過濾網。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_04RF1E", "eqName": "成型機D", "seq": "2", "item": "圖控箱內以空氣槍吹除沾附粉末。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EX_04RF1E", "eqName": "成型機D", "seq": "3", "item": "檢視供料機齒輪箱內狀況，視狀況塗抹潤滑油。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_04RF1E", "eqName": "成型機D", "seq": "4", "item": "量測加熱器內孔尺寸，檢查磨耗狀況。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "EX_04RF1E", "eqName": "成型機D", "seq": "5", "item": "檢視減速機潤滑油之油量，視狀況添加。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "MP_01RF1G", "eqName": "微粉碎機A", "seq": "1", "item": "濾袋布套清潔", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_01RF1G", "eqName": "微粉碎機A", "seq": "2", "item": "各傳動軸承視使用狀況，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_01RF1G", "eqName": "微粉碎機A", "seq": "3", "item": "檢查各刀片磨損狀況，視情形予以更換。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_01RF1G", "eqName": "微粉碎機A", "seq": "4", "item": "檢查螺桿傳動馬達減速齒輪潤滑油油位。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "MP_01RF1G", "eqName": "微粉碎機A", "seq": "5", "item": "檢查各皮帶鬆緊度是否正常", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "MP_02RF1G", "eqName": "微粉碎機B", "seq": "1", "item": "濾袋布套清潔", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_02RF1G", "eqName": "微粉碎機B", "seq": "2", "item": "各傳動軸承視使用狀況，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_02RF1G", "eqName": "微粉碎機B", "seq": "3", "item": "檢查各刀片磨損狀況，視情形予以更換。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "MP_02RF1G", "eqName": "微粉碎機B", "seq": "4", "item": "檢查螺桿傳動馬達減速齒輪潤滑油油位。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "MP_02RF1G", "eqName": "微粉碎機B", "seq": "5", "item": "檢查各皮帶鬆緊度是否正常", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "DM_01PR2S", "eqName": "滾桶攪拌機 MX-60型", "seq": "1", "item": "檢查外觀與桶內是否清潔乾淨且無異物", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_01PR2S", "eqName": "滾桶攪拌機 MX-60型", "seq": "2", "item": "各傳動軸承添加食品級潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_01PR2S", "eqName": "滾桶攪拌機 MX-60型", "seq": "3", "item": "滾桶與升降是否正常且活塞桿是否有漏油現象", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_01PR2S", "eqName": "薯片機B", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_02PR2S", "eqName": "薯片機C", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_03PR2S", "eqName": "薯片機D", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_04PR2S", "eqName": "薯片機E", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_05PR2S", "eqName": "薯片機F", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "1", "item": "排熱風扇濾網更換作業", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "2", "item": "設備各部螺絲緊實度確認", "cycle": "2週", "cycleDays": 14, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "3", "item": "配電箱空氣濾網的清潔作業", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "4", "item": "風刀部軌道清潔及上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "5", "item": "油壓缸上油保養", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "6", "item": "油箱的油位檢察", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CM_06PR2S", "eqName": "薯片機G", "seq": "7", "item": "更換液壓油箱內液壓油及過濾器", "cycle": "年", "cycleDays": 365, "months": [9]}, {"eqId": "CV_01PR2S", "eqName": "輸送機 (薯片線-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_01PR2S", "eqName": "輸送機 (薯片線-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_01PR2S", "eqName": "輸送機 (薯片線-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_01PR2S", "eqName": "輸送機 (薯片線-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_01PR2S", "eqName": "震動機給料機 (薯片線)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_01PR2S", "eqName": "震動機給料機 (薯片線)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_01PR2S", "eqName": "震動機給料機 (薯片線)", "seq": "3", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_01PR2S", "eqName": "震動機給料機 (薯片線)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_01PR2S", "eqName": "提升機 (薯片線-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_01PR2S", "eqName": "提升機 (薯片線-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_01PR2S", "eqName": "提升機 (薯片線-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_01PR2S", "eqName": "提升機 (薯片線-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "1", "item": "所有鏈條加入新的潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "2", "item": "檢察電器介面功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "3", "item": "傳動輸送網帶應每月檢查一次鬆緊度及調整。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "4", "item": "檢查各固定螺栓是否有鬆動，若有則予以鎖緊。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "5", "item": "更換齒輪箱潤滑油", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_01PR2S", "eqName": "三層電烤箱", "seq": "6", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [3, 9]}, {"eqId": "EL_02PR2S", "eqName": "提升機 (薯片線-2)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_02PR2S", "eqName": "提升機 (薯片線-2)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_02PR2S", "eqName": "提升機 (薯片線-2)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_02PR2S", "eqName": "提升機 (薯片線-2)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_02PR2S", "eqName": "雙滾筒調味機", "seq": "1", "item": "所有鏈條加入新的潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_02PR2S", "eqName": "雙滾筒調味機", "seq": "2", "item": "檢察電器介面功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_02PR2S", "eqName": "雙滾筒調味機", "seq": "3", "item": "檢查料斗內攪拌棒是否有損壞。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_02PR2S", "eqName": "雙滾筒調味機", "seq": "4", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [5, 11]}, {"eqId": "DM_02PR2S", "eqName": "雙滾筒調味機", "seq": "5", "item": "打油設備油封更換", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "OS_01PR2S", "eqName": "加熱噴油機 (薯片線)", "seq": "1", "item": "檢查各碟閥視作動狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_01PR2S", "eqName": "加熱噴油機 (薯片線)", "seq": "2", "item": "開啟隔離器與電源開關，檢查電氣系統。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_01PR2S", "eqName": "加熱噴油機 (薯片線)", "seq": "3", "item": "檢視噴油泵浦作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_01PR2S", "eqName": "震動灑粉機 (薯片線)", "seq": "1", "item": "灑粉料斗內是否乾淨", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_01PR2S", "eqName": "震動灑粉機 (薯片線)", "seq": "2", "item": "升降螺桿、軸承活動是否順暢，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_01PR2S", "eqName": "震動灑粉機 (薯片線)", "seq": "3", "item": "開啟隔離器與電源開關，檢查電氣系統", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_01PR2S", "eqName": "震動灑粉機 (薯片線)", "seq": "4", "item": "啟動設備各動作按鈕檢查各功能是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_02PR2S", "eqName": "可調式輸送機 (薯片線)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_02PR2S", "eqName": "可調式輸送機 (薯片線)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_02PR2S", "eqName": "可調式輸送機 (薯片線)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_02PR2S", "eqName": "可調式輸送機 (薯片線)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_04RF2S", "eqName": "震動機給料機 (米花線)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_04RF2S", "eqName": "震動機給料機 (米花線)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_04RF2S", "eqName": "震動機給料機 (米花線)", "seq": "3", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_04RF2S", "eqName": "震動機給料機 (米花線)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_03RF2S", "eqName": "提升機 (米花線-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_03RF2S", "eqName": "提升機 (米花線-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_03RF2S", "eqName": "提升機 (米花線-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_03RF2S", "eqName": "提升機 (米花線-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_02RF2S", "eqName": "震動整列機A", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_02RF2S", "eqName": "震動整列機A", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_02RF2S", "eqName": "震動整列機A", "seq": "3", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_02RF2S", "eqName": "震動整列機A", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "1", "item": "所有軸承加入新的潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "2", "item": "檢察電器介面功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "3", "item": "檢查輸送帶是否有損壞，並進行鏈網骨架位置調整", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "4", "item": "清潔抽油煙機內部濾網與管路。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "5", "item": "檢查泵作動是否正常。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OS_02RF2S", "eqName": "自動線噴油機 1000型E", "seq": "6", "item": "測試感溫線溫度顯示是否正確。", "cycle": "半年", "cycleDays": 180, "months": [4, 10]}, {"eqId": "CV_03RF2S", "eqName": "可調式輸送機 (米花線)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_03RF2S", "eqName": "可調式輸送機 (米花線)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_03RF2S", "eqName": "可調式輸送機 (米花線)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_03RF2S", "eqName": "可調式輸送機 (米花線)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_03RF2S", "eqName": "旋轉式調味機-1 (米花線)", "seq": "1", "item": "滾桶內是否乾淨", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_03RF2S", "eqName": "旋轉式調味機-1 (米花線)", "seq": "2", "item": "升降螺桿、軸承活動是否順暢，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_03RF2S", "eqName": "旋轉式調味機-1 (米花線)", "seq": "3", "item": "開啟隔離器與電源開關，檢查電氣系統", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_03RF2S", "eqName": "旋轉式調味機-1 (米花線)", "seq": "4", "item": "啟動設備各動作按鈕檢查各功能是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "LS_01RF2S", "eqName": "噴液機二流體式 (米花線)", "seq": "1", "item": "檢查各碟閥視作動狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "LS_01RF2S", "eqName": "噴液機二流體式 (米花線)", "seq": "2", "item": "開啟隔離器與電源開關，檢查電氣系統。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "LS_01RF2S", "eqName": "噴液機二流體式 (米花線)", "seq": "3", "item": "檢視噴油泵浦作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "1", "item": "檢查鼓風機傳動三角皮帶是否磨損", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "2", "item": "鼓風機和輸送系統上所有軸承加入新的潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "3", "item": "電箱濾網", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "4", "item": "檢查輸送帶是否有損壞，並進行鏈網骨架位置調整更換", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "5", "item": "更換熱衰竭鏈條緊度彈簧", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "6", "item": "確認並清潔馬達外積累油漬", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "7", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [4, 10]}, {"eqId": "OV_02RF2S", "eqName": "連續式乾燥機", "seq": "8", "item": "確認是否需要更換損壞金屬絲網", "cycle": "年", "cycleDays": 365, "months": [4]}, {"eqId": "EL_04RF2S", "eqName": "提升機 (米花線-2)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_04RF2S", "eqName": "提升機 (米花線-2)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_04RF2S", "eqName": "提升機 (米花線-2)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_04RF2S", "eqName": "提升機 (米花線-2)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_03RF2S", "eqName": "震動機", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_03RF2S", "eqName": "震動機", "seq": "2", "item": "檢查電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VB_03RF2S", "eqName": "震動機", "seq": "3", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_04RF2S", "eqName": "旋轉式調味機-2 (米花線)", "seq": "1", "item": "滾桶內是否乾淨", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_04RF2S", "eqName": "旋轉式調味機-2 (米花線)", "seq": "2", "item": "升降螺桿、軸承活動是否順暢，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_04RF2S", "eqName": "旋轉式調味機-2 (米花線)", "seq": "3", "item": "開啟隔離器與電源開關，檢查電氣系統", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_04RF2S", "eqName": "旋轉式調味機-2 (米花線)", "seq": "4", "item": "啟動設備各動作按鈕檢查各功能是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_02RF2S", "eqName": "震動灑粉機 (米花線)", "seq": "1", "item": "灑粉料斗內是否乾淨", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_02RF2S", "eqName": "震動灑粉機 (米花線)", "seq": "2", "item": "升降螺桿、軸承活動是否順暢，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_02RF2S", "eqName": "震動灑粉機 (米花線)", "seq": "3", "item": "開啟隔離器與電源開關，檢查電氣系統", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "PD_02RF2S", "eqName": "震動灑粉機 (米花線)", "seq": "4", "item": "啟動設備各動作按鈕檢查各功能是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_06RF2S", "eqName": "提升機 (米花線-3)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_03RF2S", "eqName": "加熱噴油機 (米花線)", "seq": "1", "item": "檢查各碟閥視作動狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_03RF2S", "eqName": "加熱噴油機 (米花線)", "seq": "2", "item": "開啟隔離器與電源開關，檢查電氣系統。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_03RF2S", "eqName": "加熱噴油機 (米花線)", "seq": "3", "item": "檢視噴油泵浦作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_06RF2S", "eqName": "提升機 (米花線-3)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_06RF2S", "eqName": "提升機 (米花線-3)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_06RF2S", "eqName": "提升機 (米花線-3)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_04RF2S", "eqName": "輸送機 (米花線-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_04RF2S", "eqName": "輸送機 (米花線-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_04RF2S", "eqName": "輸送機 (米花線-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_04RF2S", "eqName": "輸送機 (米花線-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SR_01RF3B", "eqName": "震動篩選機", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SR_01RF3B", "eqName": "震動篩選機", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SR_01RF3B", "eqName": "震動篩選機", "seq": "3", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SR_01RF3B", "eqName": "震動篩選機", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_03RF2S", "eqName": "熱風乾燥機 10號", "seq": "1", "item": "檢查外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_03RF2S", "eqName": "熱風乾燥機 10號", "seq": "2", "item": "檢察電器介面功能，風扇功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_03RF2S", "eqName": "熱風乾燥機 10號", "seq": "3", "item": "檢查進排風口閘門是否正常，閥門是否保持清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_03RF2S", "eqName": "熱風乾燥機 10號", "seq": "4", "item": "檢查門邊膠條是否老舊或脫落。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_03RF2S", "eqName": "熱風乾燥機 10號", "seq": "5", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [1, 7]}, {"eqId": "OV_04RF2S", "eqName": "熱風乾燥機 14號", "seq": "1", "item": "檢查外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_04RF2S", "eqName": "熱風乾燥機 14號", "seq": "2", "item": "檢察電器介面功能，風扇功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_04RF2S", "eqName": "熱風乾燥機 14號", "seq": "3", "item": "檢查進排風口閘門是否正常，閥門是否保持清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_04RF2S", "eqName": "熱風乾燥機 14號", "seq": "4", "item": "檢查門邊膠條是否老舊或脫落。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OV_04RF2S", "eqName": "熱風乾燥機 14號", "seq": "5", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [2, 8]}, {"eqId": "DM_05RF2S", "eqName": "加熱滾桶攪拌罐 300L", "seq": "1", "item": "夾層內鍋油位是否足夠(不可太滿)。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_05RF2S", "eqName": "加熱滾桶攪拌罐 300L", "seq": "2", "item": "來查各碟閥視作動狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_05RF2S", "eqName": "加熱滾桶攪拌罐 300L", "seq": "3", "item": "插上電源插頭，開啟隔離器電源，檢查電氣系統。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_05RF2S", "eqName": "加熱滾桶攪拌罐 300L", "seq": "4", "item": "檢視轉子泵作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_06RF2S", "eqName": "滾桶攪拌機 3號", "seq": "1", "item": "檢查外觀與桶內是否清潔乾淨且無異物", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_06RF2S", "eqName": "滾桶攪拌機 3號", "seq": "2", "item": "各傳動軸承添加食品級潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_06RF2S", "eqName": "滾桶攪拌機 3號", "seq": "3", "item": "滾桶與升降是否正常且活塞桿是否有漏油現象", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_07RF2S", "eqName": "滾桶攪拌機-C", "seq": "1", "item": "檢查外觀與桶內是否清潔乾淨且無異物", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_07RF2S", "eqName": "滾桶攪拌機-C", "seq": "2", "item": "各傳動軸承添加食品級潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "DM_07RF2S", "eqName": "滾桶攪拌機-C", "seq": "3", "item": "滾桶與升降是否正常且活塞桿是否有漏油現象", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_05RF2S", "eqName": "熱風乾燥機 (烤箱3號)", "seq": "1", "item": "檢查外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_05RF2S", "eqName": "熱風乾燥機 (烤箱3號)", "seq": "2", "item": "檢察電器介面功能，風扇功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_05RF2S", "eqName": "熱風乾燥機 (烤箱3號)", "seq": "3", "item": "檢查進排風口閘門是否正常，閥門是否保持清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_05RF2S", "eqName": "熱風乾燥機 (烤箱3號)", "seq": "4", "item": "檢查門邊膠條是否老舊或脫落。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_05RF2S", "eqName": "熱風乾燥機 (烤箱3號)", "seq": "5", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [1, 7]}, {"eqId": "OV_06RF2S", "eqName": "不鏽鋼熱風乾燥機 (烤箱11號)", "seq": "1", "item": "檢查外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_06RF2S", "eqName": "不鏽鋼熱風乾燥機 (烤箱11號)", "seq": "2", "item": "檢察電器介面功能，風扇功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_06RF2S", "eqName": "不鏽鋼熱風乾燥機 (烤箱11號)", "seq": "3", "item": "檢查進排風口閘門是否正常，閥門是否保持清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OV_06RF2S", "eqName": "不鏽鋼熱風乾燥機 (烤箱11號)", "seq": "4", "item": "檢查門邊膠條是否老舊或脫落。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "OV_06RF2S", "eqName": "不鏽鋼熱風乾燥機 (烤箱11號)", "seq": "5", "item": "測試感溫線溫度顯示是否正確", "cycle": "半年", "cycleDays": 180, "months": [1, 7]}, {"eqId": "CR_01RF2S", "eqName": "角柱型粉碎機", "seq": "1", "item": "各傳動軸承視使用狀況，定期添加潤滑油脂", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CR_01RF2S", "eqName": "角柱型粉碎機", "seq": "2", "item": "檢查各刀片磨損狀況，視情形予以更換。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CR_01RF2S", "eqName": "角柱型粉碎機", "seq": "3", "item": "檢查各皮帶鬆緊度是否正常。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "CR_01RF2S", "eqName": "角柱型粉碎機", "seq": "4", "item": "確認各部電器操作開關功能是否正常。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "OS_04RF2S", "eqName": "加熱噴油機 (5號)", "seq": "1", "item": "檢查各碟閥視作動狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_04RF2S", "eqName": "加熱噴油機 (5號)", "seq": "2", "item": "開啟隔離器與電源開關，檢查電氣系統。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "OS_04RF2S", "eqName": "加熱噴油機 (5號)", "seq": "3", "item": "檢視噴油泵浦作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_07PK3B", "eqName": "提升機 (立式包裝機A-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_07PK3B", "eqName": "提升機 (立式包裝機A-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_07PK3B", "eqName": "提升機 (立式包裝機A-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_07PK3B", "eqName": "提升機 (立式包裝機A-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "1", "item": "檢視外觀清潔及矽膠擋片是否破損", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "2", "item": "面板顯示是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "3", "item": "主震機、線震機及主震感測器作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "4", "item": "緩衝斗電機、秤量斗電機作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "5", "item": "拉模捲軸作動及打印模組作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_01PK3B", "eqName": "立式包裝機A", "seq": "6", "item": "加熱管及控溫裝置，封口模板作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_08PK3B", "eqName": "提升機 (立式包裝機A-2)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_08PK3B", "eqName": "提升機 (立式包裝機A-2)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_08PK3B", "eqName": "提升機 (立式包裝機A-2)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_08PK3B", "eqName": "提升機 (立式包裝機A-2)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_05PK3B", "eqName": "輸送機 (立式包裝機A)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_05PK3B", "eqName": "輸送機 (立式包裝機A)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_05PK3B", "eqName": "輸送機 (立式包裝機A)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_05PK3B", "eqName": "輸送機 (立式包裝機A)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_09PK3B", "eqName": "提升機 (立式包裝機B-1)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_09PK3B", "eqName": "提升機 (立式包裝機B-1)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_09PK3B", "eqName": "提升機 (立式包裝機B-1)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_09PK3B", "eqName": "提升機 (立式包裝機B-1)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "1", "item": "檢視外觀清潔及矽膠擋片是否破損", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "2", "item": "面板顯示是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "3", "item": "主震機、線震機及主震感測器作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "4", "item": "緩衝斗電機、秤量斗電機作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "5", "item": "拉模捲軸作動及打印模組作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "VF_02PK3B", "eqName": "立式包裝機B", "seq": "6", "item": "加熱管及控溫裝置，封口模板作動是否正常", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_10PK3B", "eqName": "提升機 (立式包裝機B-2)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_10PK3B", "eqName": "提升機 (立式包裝機B-2)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_10PK3B", "eqName": "提升機 (立式包裝機B-2)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_10PK3B", "eqName": "提升機 (立式包裝機B-2)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_06PK3B", "eqName": "輸送機 (立式包裝機B)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_06PK3B", "eqName": "輸送機 (立式包裝機B)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_06PK3B", "eqName": "輸送機 (立式包裝機B)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_06PK3B", "eqName": "輸送機 (立式包裝機B)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_11PK3B", "eqName": "提升機 (給袋)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_11PK3B", "eqName": "提升機 (給袋)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_11PK3B", "eqName": "提升機 (給袋)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "EL_11PK3B", "eqName": "提升機 (給袋)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "1", "item": "主震機、線震機及主震感測器作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "2", "item": "緩衝斗電機、秤量斗電機作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "3", "item": "加熱管及控溫裝置，封口模板作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "4", "item": "檢視矽膠檔片是否破損及打印模組作動是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "5", "item": "檢視工料機齒輪箱內之狀況，視狀況塗抹潤滑油脂。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "BG_01PK3B", "eqName": "立式給袋機", "seq": "6", "item": "清潔冷卻風扇入口過濾網及檢視面板顯示是否正常。", "cycle": "季", "cycleDays": 90, "months": [2, 5, 8, 11]}, {"eqId": "CV_07PK3B", "eqName": "輸送機 (給袋)", "seq": "1", "item": "檢查外觀是否清潔無破損，螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_07PK3B", "eqName": "輸送機 (給袋)", "seq": "2", "item": "檢察電器功能作動是否正常，並進行清潔。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_07PK3B", "eqName": "輸送機 (給袋)", "seq": "3", "item": "確認輸送帶張力是否適中。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CV_07PK3B", "eqName": "輸送機 (給袋)", "seq": "4", "item": "確認軸承是否鬆動並上油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_01PK3B", "eqName": "連續封口機A", "seq": "1", "item": "檢查輸送帶是否鬆脫或打滑現象，有則予以調整。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_01PK3B", "eqName": "連續封口機A", "seq": "2", "item": "檢查鋼帶是否行走緩慢或有磨擦聲出現。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_01PK3B", "eqName": "連續封口機A", "seq": "3", "item": "加熱鋼帶以潤滑油擦拭", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_01PK3B", "eqName": "連續封口機A", "seq": "4", "item": "檢查電系系統是否運作正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_01PK3B", "eqName": "連續封口機A", "seq": "5", "item": "機器滑動部位和機器內部轉動系統加塗耐熱油脂。", "cycle": "季", "cycleDays": 90, "months": [1, 4, 7, 10]}, {"eqId": "SL_02PK3B", "eqName": "連續封口機B", "seq": "1", "item": "檢查輸送帶是否鬆脫或打滑現象，有則予以調整。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_02PK3B", "eqName": "連續封口機B", "seq": "2", "item": "檢查鋼帶是否行走緩慢或有磨擦聲出現。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_02PK3B", "eqName": "連續封口機B", "seq": "3", "item": "加熱鋼帶以潤滑油擦拭", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_02PK3B", "eqName": "連續封口機B", "seq": "4", "item": "檢查電系系統是否運作正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "SL_02PK3B", "eqName": "連續封口機B", "seq": "5", "item": "機器滑動部位和機器內部轉動系統加塗耐熱油脂。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "CP_01PK3B", "eqName": "唐亞V230 高解析碳帶印刷機", "seq": "1", "item": "檢查輸送帶運轉是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CP_01PK3B", "eqName": "唐亞V230 高解析碳帶印刷機", "seq": "2", "item": "檢查螺絲是否鬆脫，如有鬆脫部分請鎖緊固定。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CP_01PK3B", "eqName": "唐亞V230 高解析碳帶印刷機", "seq": "3", "item": "各傳動軸承視使用狀況，定期添加潤滑油脂。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CP_01PK3B", "eqName": "唐亞V230 高解析碳帶印刷機", "seq": "4", "item": "檢查固定壓條是否變形。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CP_01PK3B", "eqName": "唐亞V230 高解析碳帶印刷機", "seq": "5", "item": "檢查所有橡膠皮帶及風嘴是否損壞。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_01PK3P", "eqName": "半自動封箱機A", "seq": "1", "item": "設備螺絲零件是否有鬆脫掉落及變形。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_01PK3P", "eqName": "半自動封箱機A", "seq": "2", "item": "設備輸送滾輪、軸承，使用 WD-40防鏽潤滑油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_01PK3P", "eqName": "半自動封箱機A", "seq": "3", "item": "確認各部電器操作開關功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_01PK3P", "eqName": "半自動封箱機A", "seq": "4", "item": "檢查膠帶刀刀片，若有缺口或鈍化則更換新刀片", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_01PK3P", "eqName": "半自動封箱機A", "seq": "5", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_02PK3P", "eqName": "半自動封箱機B", "seq": "1", "item": "設備螺絲零件是否有鬆脫掉落及變形。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_02PK3P", "eqName": "半自動封箱機B", "seq": "2", "item": "設備輸送滾輪、軸承，使用 WD-40防鏽潤滑油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_02PK3P", "eqName": "半自動封箱機B", "seq": "3", "item": "確認各部電器操作開關功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_02PK3P", "eqName": "半自動封箱機B", "seq": "4", "item": "檢查膠帶刀刀片，若有缺口或鈍化則更換新刀片", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_02PK3P", "eqName": "半自動封箱機B", "seq": "5", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_03PK3P", "eqName": "半自動封箱機C", "seq": "1", "item": "設備螺絲零件是否有鬆脫掉落及變形。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_03PK3P", "eqName": "半自動封箱機C", "seq": "2", "item": "設備輸送滾輪、軸承，使用 WD-40防鏽潤滑油保養。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_03PK3P", "eqName": "半自動封箱機C", "seq": "3", "item": "確認各部電器操作開關功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_03PK3P", "eqName": "半自動封箱機C", "seq": "4", "item": "檢查膠帶刀刀片，若有缺口或鈍化則更換新刀片", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CS_03PK3P", "eqName": "半自動封箱機C", "seq": "5", "item": "設備運轉中以耳聽確認機台有無異音。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_01PK3B", "eqName": "重檢機A", "seq": "1", "item": "外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_01PK3B", "eqName": "重檢機A", "seq": "2", "item": "確認各部電器操作功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_01PK3B", "eqName": "重檢機A", "seq": "3", "item": "皮帶張力確認。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "CW_01PK3B", "eqName": "重檢機A", "seq": "4", "item": "秤重機儀器精準度校正。", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "CW_01PK3B", "eqName": "重檢機A", "seq": "5", "item": "確認備份電池指示正常。", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "CW_02PK3B", "eqName": "重檢機B", "seq": "1", "item": "外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_02PK3B", "eqName": "重檢機B", "seq": "2", "item": "確認各部電器操作功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_02PK3B", "eqName": "重檢機B", "seq": "3", "item": "皮帶張力確認。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "CW_02PK3B", "eqName": "重檢機B", "seq": "4", "item": "秤重機儀器精準度校正。", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "CW_02PK3B", "eqName": "重檢機B", "seq": "5", "item": "確認備份電池指示正常。", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "CW_03PK3B", "eqName": "重檢機C", "seq": "1", "item": "外觀是否清潔無破損，或螺絲零件是否有鬆脫掉落。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_03PK3B", "eqName": "重檢機C", "seq": "2", "item": "確認各部電器操作功能是否正常。", "cycle": "月", "cycleDays": 30, "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, {"eqId": "CW_03PK3B", "eqName": "重檢機C", "seq": "3", "item": "皮帶張力確認。", "cycle": "季", "cycleDays": 90, "months": [3, 6, 9, 12]}, {"eqId": "CW_03PK3B", "eqName": "重檢機C", "seq": "4", "item": "秤重機儀器精準度校正。", "cycle": "年", "cycleDays": 365, "months": [11]}, {"eqId": "CW_03PK3B", "eqName": "重檢機C", "seq": "5", "item": "確認備份電池指示正常。", "cycle": "年", "cycleDays": 365, "months": [11]}];
 firebase.initializeApp(CFG);const db=firebase.database(),ROOT=db.ref("maintenance");
-let EQUIP={},MAT={},CONF={laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},WOS={},REPS={},AREAS={},PLANS={};
+let EQUIP={},MAT={},CONF={laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},WOS={},REPS={},AREAS={},PLANS={},REQS={};
 let adminAuthed=false,invAuthed=false,ENGINEER=sessionStorage.getItem("bfy_eng")||"";
 const $=s=>document.querySelector(s),el=(t,p={})=>Object.assign(document.createElement(t),p),APP=()=>document.getElementById("app");
 function toast(m,k){const t=$("#toast");t.textContent=m;t.className="toast show "+(k||"");setTimeout(()=>t.className="toast",2200);}
@@ -94,14 +107,35 @@ function todayStr(){return new Date().toISOString().slice(0,10);}
 function dStr(ts){return new Date(ts||0).toISOString().slice(0,10);}
 
 async function loadMasters(){
-  const [e,m,c,a,pl]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get(),ROOT.child("areas").get(),ROOT.child("plans").get()]);
+  const [e,m,c,a,pl,rq]=await Promise.all([ROOT.child("equipment").get(),ROOT.child("material").get(),ROOT.child("config").get(),ROOT.child("areas").get(),ROOT.child("plans").get(),ROOT.child("requisitions").get()]);
   EQUIP=e.val()||{};MAT=m.val()||{};CONF=Object.assign({laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},c.val()||{});
   AREAS=a.val()||{};if(!Object.keys(AREAS).length){DEFAULT_AREAS.forEach(x=>AREAS[x.code]=x);}
-  PLANS=pl.val()||{};
+  PLANS=pl.val()||{};REQS=rq.val()||{};
 }
-function listenLive(){ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});ROOT.child("plans").on("value",s=>{PLANS=s.val()||{};rerender();});}
+function listenLive(){ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});ROOT.child("plans").on("value",s=>{PLANS=s.val()||{};rerender();});ROOT.child("requisitions").on("value",s=>{REQS=s.val()||{};rerender();});}
 const eqArr=()=>Object.values(EQUIP).sort((a,b)=>a.id<b.id?-1:1);
 const matArr=()=>Object.values(MAT).sort((a,b)=>a.id<b.id?-1:1);
+// 合併資料源：SEED_MAT 為底（有 loc/qty/equip），Firebase 動態更新疊加
+function getInvMats(){
+  const out=[]; const seen=new Set();
+  SEED_MAT.forEach(s=>{
+    const f=MAT[s.id]||{};
+    out.push({
+      id:s.id, cat:s.cat, catname:s.catname||CAT_MAP[s.cat]||s.cat,
+      name:s.name, model:s.model||"", equip:f.equip||s.equip||"",
+      unit:f.unit||s.unit||"", brand:s.brand||f.brand||"",
+      partno:s.partno||f.partno||"",
+      loc:f.loc!=null&&f.loc!==undefined?f.loc:s.loc||"",
+      qty:f.qty!=null?+f.qty:(s.qty!=null?+s.qty:0),
+      price:f.price!=null?f.price:s.price||1,
+      photo:f.photo||s.photo||"",
+    });
+    seen.add(s.id);
+  });
+  // 手動新增（不在 SEED_MAT 裡的 Firebase 項目）
+  Object.values(MAT).forEach(f=>{if(!seen.has(f.id))out.push(f);});
+  return out.sort((a,b)=>a.id<b.id?-1:1);
+}
 const woArr=()=>Object.entries(WOS).map(([k,v])=>Object.assign({_k:k},v));
 const repArr=()=>Object.entries(REPS).map(([k,v])=>Object.assign({_k:k},v));
 const areaArr=()=>Object.values(AREAS).sort((a,b)=>a.code<b.code?-1:1);
@@ -200,13 +234,22 @@ function engPivot(){
     <div style="margin-top:12px" id="pv_list">${ws.length?ws.map(woCardEng).join(""):'<div class="hint">沒有符合的工單。</div>'}</div></div>
     <button class="sec" style="width:100%" onclick="location.hash='#eng'">返回</button></main>`;
 }
-function woCardEng(w){return `<div class="wo"><div style="display:flex;justify-content:space-between;align-items:flex-start">
+function woCardEng(w){
+  const req=Object.values(REQS).find(r=>r.woKey===w._k);
+  const reqBadge=req
+    ?req.status==="待發料"?`<div style="font-size:11px;color:#92400e;background:#fef3c7;border-radius:4px;padding:2px 6px;margin-top:4px">⏳ 領料申請待確認（${req.materials.map(m=>m.name+"×"+m.qty).join("、")}）</div>`
+    :req.status==="已發料"?`<div style="font-size:11px;color:#166534;background:#f0fdf4;border-radius:4px;padding:2px 6px;margin-top:4px">✅ 料件已發放，可完成報工</div>`
+    :"":"";
+  const canComplete=!req||req.status==="已發料"||req.status==="已取消";
+  return `<div class="wo"><div style="display:flex;justify-content:space-between;align-items:flex-start">
   <div><div class="id">${esc(w.id||w._k)} <span class="pill src-${w.source||"保養"}">${esc(w.source||"")}</span></div>
-  <div class="meta">${esc(w.equipName||w.equip)} · ${esc(w.item||w.symptom||"")} · 指派:${esc(w.assignedTo||"未指派")}</div></div>
+  <div class="meta">${esc(w.equipName||w.equip)} · ${esc(w.item||w.symptom||"")} · 指派:${esc(w.assignedTo||"未指派")}</div>
+  ${reqBadge}</div>
   <span class="pill s-${w.status||"待派工"}">${w.status||"待派工"}</span></div>
-  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash='#scan='+'${esc(w.equip)}';setTimeout(()=>receiveWO('${w._k}','${esc(w.equip)}'),300)">接收/回報</button></div>`;}
+  <button class="sec" style="width:100%;margin-top:10px" onclick="location.hash='#scan='+'${esc(w.equip)}';setTimeout(()=>receiveWO('${w._k}','${esc(w.equip)}'),300)">${canComplete?"接收/回報":"查看工單（等待發料）"}</button></div>`;
+}
 
-let mLines=[{}],activeWO=null;
+let mLines=[{}],activeWO=null,rEngineers=[];
 function engScan(eqid){
   const eq=EQUIP[eqid];
   if(!ENGINEER){sessionStorage.setItem("bfy_after",location.hash);ENGINEER="";APP().innerHTML=engHeader("請選擇身分")+`<main><div class="card"><h3>請先選擇你的名字</h3><div class="namegrid">${REPORTERS.map(n=>`<button onclick="pickEng2('${n}','${esc(eqid)}')">${n}</button>`).join("")}</div></div></main>`;return;}
@@ -231,35 +274,108 @@ function renderReportForm(eqid,woKey){const box=$("#rform");if(!box)return;
     <label>回報人</label><select id="r_by">${REPORTERS.map(n=>`<option ${n===ENGINEER?"selected":""}>${n}</option>`).join("")}</select>
     <label>項目/說明（可選保養清單或手填）</label>
     <input id="r_item" list="r_itemlist" placeholder="保養項目或故障現象（可打字搜尋）" value="${woKey?esc((WOS[woKey]||{}).item||(WOS[woKey]||{}).symptom||''):''}">
-    <datalist id="r_itemlist">${planArr().filter(p=>p.eqId===eqid).sort((a,b)=>(a.seq||0)-(b.seq||0)).map(p=>`<option value="${esc(p.item)}">`).join("")}</datalist>
+    <datalist id="r_itemlist">${(planArr().filter(p=>p.eqId===eqid).length?planArr().filter(p=>p.eqId===eqid):SEED_PLANS.filter(p=>p.eqId===eqid)).sort((a,b)=>(a.seq||0)-(b.seq||0)).map(p=>`<option value="${esc(p.item)}">`).join("")}</datalist>
     <div class="row"><div><label>進度</label><select id="r_prog"><option>進行中</option><option>已完成</option><option>待料</option></select></div>
-    <div><label>工時(小時)</label><input id="r_hr" type="number" inputmode="decimal" step="0.5" value="1"></div></div>
+    <div><label>工時(小時)<span id="r_hr_hint" style="margin-left:6px;font-size:12px"></span></label><input id="r_hr" type="number" inputmode="decimal" step="0.5" value="1"></div></div>
+    <label style="margin-top:10px">執行工程師</label><div id="r_eng_list"></div>
     <label style="margin-top:12px">使用耗材</label><div id="r_mat"></div>
     <button class="sec" id="r_addmat" style="margin-top:4px">＋ 新增耗材</button>
     <label style="margin-top:12px">備註</label><textarea id="r_note" rows="2"></textarea>
-    <button class="act" id="r_submit">送出報工</button>`;
-  drawMat();$("#r_addmat").onclick=()=>{mLines.push({});drawMat();};$("#r_submit").onclick=()=>submitReport(eqid,woKey);}
-function drawMat(){const mats=matArr();const cats=[...new Set(mats.map(m=>catOf(m.id)))].sort();const box=$("#r_mat");if(!box)return;box.innerHTML="";
+    <button class="act" id="r_submit">送出報工</button>
+    <div id="r_mode_hint" style="margin-top:8px"></div>`;
+  // 偵測此工單是否已有領料申請
+  if(woKey){
+    const existReq=Object.values(REQS).find(r=>r.woKey===woKey);
+    if(existReq){
+      const badge=existReq.status==="待發料"
+        ?`<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:6px">⏳ <b>此工單有待發料申請</b>（${existReq.materials.map(m=>m.name+"×"+m.qty).join("、")}）<br>請等倉管確認發料後，再回來更新為「已完成」。</div>`
+        :existReq.status==="已發料"
+        ?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:6px">✅ <b>料件已發放</b>（${existReq.confirmedAt?dStr(existReq.confirmedAt):"-"}，發料：${esc(existReq.confirmedBy||"")}）<br>可更新進度為「已完成」。</div>`
+        :"";
+      if(badge){const rform=$("#rform");if(rform)rform.insertAdjacentHTML("afterbegin",badge);}
+      // 待發料時鎖定進度不能改完成
+      if(existReq.status==="待發料"){
+        const ps=$("#r_prog");
+        if(ps){ps.value="進行中";Array.from(ps.options).forEach(o=>{if(o.value==="已完成")o.disabled=true;});}
+      }
+    }
+  }
+  drawMat();$("#r_addmat").onclick=()=>{mLines.push({});drawMat();updateReportMode()};
+  // 初始化工程師清單
+  rEngineers=ENGINEER?[ENGINEER]:REPORTERS.slice(0,1);
+  drawEngineers();
+  // 工時變動時重新計算總工時
+  const hrInput=$("#r_hr");if(hrInput)hrInput.oninput=()=>drawEngineers();
+  $("#r_submit").onclick=()=>submitReport(eqid,woKey);}
+function drawEngineers(){
+  const box=$("#r_eng_list");if(!box)return;
+  const hr=+($("#r_hr")||{value:1}).value||1;
+  const n=rEngineers.length;
+  const totalHint=n>1?` <span style="color:var(--navy);font-weight:700">${hr}h × ${n}人 = 總工時 ${(hr*n).toFixed(1)}h</span>`:"";
+  const totEl=$("#r_hr_hint");if(totEl)totEl.innerHTML=totalHint;
+  box.innerHTML=rEngineers.map((eng,i)=>
+    `<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:#e0f2f1;border-radius:6px;padding:3px 10px;font-size:13px">
+      ${esc(eng)}${n>1?`<button onclick="rEngineers.splice(${i},1);drawEngineers()" style="background:none;border:none;cursor:pointer;color:#999;padding:0 2px;font-size:14px" title="移除">×</button>`:""}</span>`
+  ).join("")+
+  (n<REPORTERS.length?`<select id="r_add_eng" style="margin-top:4px;width:auto;padding:4px 8px;font-size:13px" onchange="if(this.value&&!rEngineers.includes(this.value)){rEngineers.push(this.value);drawEngineers();}this.value=''"><option value="">＋ 新增工程師</option>${REPORTERS.filter(r=>!rEngineers.includes(r)).map(r=>`<option value="${r}">${r}</option>`).join("")}</select>`:"");
+}
+function drawMat(){const mats=(typeof getInvMats==="function"?getInvMats():matArr());const cats=[...new Set(mats.map(m=>catOf(m.id)))].sort();const box=$("#r_mat");if(!box)return;box.innerHTML="";
   mLines.forEach((ln,i)=>{const items=mats.filter(m=>catOf(m.id)===(ln.cat||cats[0]));const d=el("div",{className:"matline"});
     d.innerHTML=`<div><select data-i="${i}" class="mc">${cats.map(c=>`<option value="${c}" ${c===ln.cat?"selected":""}>${c} ${esc(catName(c))}</option>`).join("")}</select></div>
-      <div><select data-i="${i}" class="mi">${items.map(m=>`<option value="${m.id}" ${m.id===ln.id?"selected":""}>${esc(m.name)}</option>`).join("")}</select></div>
+      <div><select data-i="${i}" class="mi">${items.map(m=>`<option value="${m.id}" ${m.id===ln.id?"selected":""}>${esc(m.name)}${m.qty!=null?" [庫:"+m.qty+"]":""}</option>`).join("")}</select></div>
       <div class="qy"><input data-i="${i}" class="mq" type="number" inputmode="numeric" min="0" placeholder="數量" value="${ln.qty||""}"></div>
       <div class="rm"><button data-i="${i}" class="mx">×</button></div>`;box.appendChild(d);});
   box.querySelectorAll(".mc").forEach(s=>s.onchange=e=>{mLines[+e.target.dataset.i]={cat:e.target.value};drawMat();});
   box.querySelectorAll(".mi").forEach(s=>s.onchange=e=>{mLines[+e.target.dataset.i].id=e.target.value;});
   box.querySelectorAll(".mq").forEach(s=>s.oninput=e=>{mLines[+e.target.dataset.i].qty=+e.target.value;});
-  box.querySelectorAll(".mx").forEach(b=>b.onclick=e=>{mLines.splice(+e.target.dataset.i,1);if(!mLines.length)mLines=[{}];drawMat();});}
+  box.querySelectorAll(".mx").forEach(b=>b.onclick=e=>{mLines.splice(+e.target.dataset.i,1);if(!mLines.length)mLines=[{}];drawMat();updateReportMode();});updateReportMode();}
+function updateReportMode(){
+  const hasMat=mLines.some(l=>l.id&&+(l.qty||0)>0);
+  const prog=$("#r_prog"),btn=$("#r_submit"),hint=$("#r_mode_hint");
+  if(!btn)return;
+  if(hasMat){
+    if(prog){prog.value="進行中";prog.disabled=true;
+      Array.from(prog.options).forEach(o=>{if(o.value!=="進行中")o.disabled=true;});}
+    btn.textContent="送出領料申請（等待發料後才能完工）";
+    btn.style.background="#d97706";
+    if(hint)hint.innerHTML=`<div style="background:#fef3c7;border-radius:6px;padding:8px 10px;font-size:12px"><b>📦 申請流程說明：</b><br>1⃣ 送出後建立領料申請，進度為「進行中」<br>2⃣ 倉管確認發料後，工單顯示「料件已發放」<br>3⃣ 領料並完成維修後，回到工單更新為「已完成」</div>`;
+  }else{
+    if(prog){prog.disabled=false;Array.from(prog.options).forEach(o=>o.disabled=false);}
+    btn.textContent="送出報工";btn.style.background="";
+    if(hint)hint.innerHTML="";
+  }
+}
 async function submitReport(eqid,woKey){
-  const by=$("#r_by").value,prog=$("#r_prog").value,hr=+$("#r_hr").value||0,item=$("#r_item").value,note=$("#r_note").value,src=$("#r_src")?$("#r_src").value:"保養";
-  const mats=matArr();const materials=mLines.filter(l=>l.id&&l.qty).map(l=>{const m=mats.find(x=>x.id===l.id);return{id:l.id,name:m?m.name:l.id,qty:l.qty};});
+  const hasMat=mLines.some(l=>l.id&&l.qty>0);
+  const prog=hasMat?"進行中":$("#r_prog").value, hr=+$("#r_hr").value||0,
+        item=$("#r_item").value, note=$("#r_note").value,
+        src=$("#r_src")?$("#r_src").value:"保養";
+  const engineers=rEngineers.length>0?[...rEngineers]:[ENGINEER||""];
+  const by=engineers[0]||ENGINEER||"";
+  const totalHours=+(hr*engineers.length).toFixed(1);
+  const mats=(typeof getInvMats==="function"?getInvMats():matArr());
+  const materials=mLines.filter(l=>l.id&&l.qty).map(l=>{const m=mats.find(x=>x.id===l.id);return{id:l.id,name:m?m.name:l.id,qty:l.qty};});
   $("#r_submit").disabled=true;$("#r_submit").textContent="送出中…";
   try{const now=Date.now();let woId=woKey;
     if(!woKey){const ref=ROOT.child("workorders").push();await ref.set({id:"WO-"+dStr(now).replace(/-/g,"")+"-"+String(now).slice(-4),source:src,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",item:item,assignedTo:by,priority:"中",status:prog,createdAt:now,from:"engineer"});woId=ref.key;}
     else{await ROOT.child("workorders/"+woKey).update({status:prog,item:item||WOS[woKey].item,assignedTo:WOS[woKey].assignedTo||by,finishAt:prog==="已完成"?now:null});if(prog==="已完成"&&WOS[woKey]&&WOS[woKey].planId){const pl=PLANS[WOS[woKey].planId];if(pl){await ROOT.child("plans/"+WOS[woKey].planId).update({lastDone:todayStr(),nextDue:rollDue(pl.months||[])});}}}
-    await ROOT.child("reports").push().set({woKey:woId,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",reporter:by,progress:prog,hours:hr,materials:materials,note:note,source:src,createdAt:now});
-    $("#r_submit").className="act done";$("#r_submit").textContent="✓ 已送出";toast("報工已送出，謝謝 "+by,"ok");
+    await ROOT.child("reports").push().set({woKey:woId,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",reporter:by,reporters:engineers,progress:prog,hours:hr,totalHours,materials,note,source:src,createdAt:now});
+    // 若有使用耗材 → 建立領料申請（不立即扣庫存，由倉管確認後發料）
+    if(materials.length>0){
+      await ROOT.child("requisitions").push().set({
+        woKey:woId,equip:eqid,equipName:(EQUIP[eqid]||{}).name||"",
+        reporter:by,reporters:engineers,materials,
+        status:"待發料",requestedAt:now,note,
+        confirmedAt:null,confirmedBy:null
+      });
+    }
+    $("#r_submit").className="act done";$("#r_submit").textContent="✓ 已送出";
+    const engMsg=engineers.length>1?" ("+engineers.join("、")+"，總工時 "+totalHours+"h)":"";
+    const matMsg=materials.length>0?"，已建立領料申請 "+materials.length+" 項（待倉管確認發料）":"";
+    toast("報工已送出，謝謝 "+by+engMsg+matMsg,"ok");
     setTimeout(()=>location.hash="#pivot",900);
   }catch(e){toast("送出失敗："+e.message,"bad");$("#r_submit").disabled=false;$("#r_submit").textContent="送出報工";}}
+
 
 function engPerf(){
   const today=todayStr();const mine=repArr().filter(r=>r.reporter===ENGINEER);
@@ -696,7 +812,7 @@ window.viewEngHist=function(eqid){
     <div class="card"><h3>維修歷程（${repair.length}）</h3>
       ${repair.length?`<table><tr><th>日期</th><th>現象</th><th>進度</th><th>工時</th></tr>${repair.map(r=>`<tr><td>${dStr(r.createdAt)}</td><td style="font-size:12px">${esc(r.note||"")}</td><td><span class="pill s-${r.progress}">${r.progress}</span></td><td class="n">${r.hours}</td></tr>`).join("")}</table>`:'<div class="hint">尚無</div>'}
     </div>
-    <button class="sec" style="width:100%" onclick="location.hash='#scan=${eqid}'">← 返回報工</button></main>`;
+    <button class="sec" style="width:100%" onclick="engScan('${eqid}')">← 返回報工</button></main>`;
 };
 function admArea(){const eqs=eqArr();
   $("#adminBody").innerHTML=`<div class="card"><h3>叫修區域管理</h3><div class="hint">每區一張 QR；報修時設備依「設備編號末兩碼＝區碼」自動篩選。</div>
@@ -718,122 +834,163 @@ function admQR(){const eqs=eqArr();const ars=areaArr();
 
 /* ===== 庫存管理 ===== */
 const INV_PIN_KEY="invPin"; // stored in maintenance/config/invPin, default = admin PIN
-function invHeader(){return `<header><div class="t">📦 耗材庫存管理 <small>${invAuthed?"(管理員)":"(唯讀)"}</small></div><div>${invAuthed?`<button onclick="invAuthed=false;invView()">登出管理</button>`:""}<button onclick="location.hash=''">首頁</button></div></header>`;}
+function invHeader(){
+  const pending=Object.values(REQS).filter(r=>r.status==="待發料").length;
+  const badge=pending>0?`<span style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px;margin-left:4px">${pending}</span>`:"";
+  return `<header><div class="t">📦 耗材庫存管理 <small>${invAuthed?"(管理員)":"(唯讀)"}</small></div><div>${invAuthed?`<button onclick="invAuthed=false;invView()">登出管理</button>`:""}<button onclick="location.hash=''">首頁</button></div></header>${pending&&invAuthed?`<div style="background:#fef3c7;padding:8px 14px;font-size:13px;text-align:center;cursor:pointer" onclick="document.getElementById('inv_reqs')?.scrollIntoView({behavior:'smooth'})">⚠️ 有 ${pending} 筆待發料申請${badge}</div>`:""}`;
+}
 
 function invView(){
-  const mats=matArr();
-  // ── 下拉選項：用靜態主檔確保有資料 ──
-  const allCats=[...new Set(mats.map(m=>m.cat).concat(Object.keys(CAT_MAP)))].sort();
-  const allEqs=eqArr();               // 從 EQUIP 取，不依賴 mat.equip
-  const allArs=areaArr();             // 從 AREAS 取
-  const areaOf2=eqId=>{const m=eqId.match(/([A-Z0-9]{2})$/);return m?m[1]:"";};
-  // ── 篩選值 ──
-  const fQ=window._invQ||"", fCat=window._invFCat||"", fEq=window._invFEq||"", fArea=window._invFArea||"";
-  // ── 篩選 ──
-  const filtered=mats.filter(m=>{
+  const allMats=getInvMats();
+  const allEqs=eqArr();
+  const allArs=areaArr();
+  const areaOf2=id=>(id||"").slice(-2);
+  const fQ=window._invQ||"", fCat=window._invFCat||"",
+        fArea=window._invFArea||"", fEq=window._invFEq||"";
+  const eqsInArea=fArea?allEqs.filter(e=>areaOf2(e.id)===fArea):allEqs;
+  const safeEq=fEq&&eqsInArea.some(e=>e.id===fEq)?fEq:"";
+  if(safeEq!==fEq)window._invFEq=safeEq;
+  const filtered=allMats.filter(m=>{
     if(fQ&&!(m.name+m.id+m.cat+(m.loc||"")+(m.model||"")+(m.partno||"")).toLowerCase().includes(fQ.toLowerCase()))return false;
     if(fCat&&m.cat!==fCat)return false;
-    if(fEq&&(m.equip||"")!==fEq)return false;
     if(fArea&&areaOf2(m.equip||"")!==fArea)return false;
+    if(safeEq&&(m.equip||"")!==safeEq)return false;
     return true;
   });
-  // ── 依大類分組 ──
   const grouped={};
   filtered.forEach(m=>{(grouped[m.cat]=grouped[m.cat]||[]).push(m);});
   const activeCats=[...new Set(filtered.map(m=>m.cat))].sort();
   const collapsed=window._invCollapsed||{};
-  // ── 大類區塊（永遠渲染 rows，收折只控制 display）──
+  const tblHdr=`<div class="inv-tbl-hdr"><div>耗材編號</div><div>大類</div><div>品項名稱 / 規格型號</div><div>歸屬設備</div><div>存放位置</div><div>庫存</div><div>單位</div><div></div></div>`;
   const catBlocks=activeCats.map(c=>{
     const items=grouped[c]||[];
     const isOpen=!collapsed[c];
     const cname=(items[0]||{}).catname||CAT_MAP[c]||c;
     const rows=items.map(m=>{
-      const qty=m.qty!=null?+m.qty:"—";
-      const photo=m.photo?`<img class="photo-thumb" src="${m.photo}" onclick="photoView('mat','${m.id}',true)">`:``;
+      const qty=m.qty!=null?+m.qty:"\u2014";
       const qtyClass=typeof qty==="number"&&qty<=1?"badge-low":"badge-ok";
       const locVal=esc(m.loc||"");
-      const equipBadge=m.equip?`<span style="font-size:10px;background:#e0f2f1;color:#0e5c63;border-radius:4px;padding:1px 5px;margin-left:4px">${esc(m.equip)}</span>`:"";
-      // 四欄資訊：編號｜名稱｜單位｜型號
-      const infoLine=`<div style="font-size:11px;color:var(--mut);margin-top:2px">
-        <span>${esc(m.id)}</span>${m.unit?`<span style="margin-left:6px">📦${esc(m.unit)}</span>`:""}
-        ${m.model?`<span style="margin-left:6px;color:#555">🔩${esc(m.model)}</span>`:""}
-        ${m.partno?`<span style="margin-left:6px;color:#888">No.${esc(m.partno)}</span>`:""}
-      </div>`;
+      const eqName=m.equip?(EQUIP[m.equip]||{}).name||"":""
+      const photo=m.photo?`<img class="photo-thumb" style="width:32px;height:32px" src="${m.photo}" onclick="photoView('mat','${m.id}',true)">`:``;
+      const nameCell=`<div class="col-nm"><div style="font-weight:600;font-size:13px">${esc(m.name)}</div><div class="sub">${m.model?`🔩${esc(m.model)} `:""}${m.partno?`<span style="color:#888">No.${esc(m.partno)}</span>`:""}</div></div>`;
+      const eqCell=m.equip?`<div class="col-eq" title="${esc(m.equip)}">${esc(m.equip)}<br><span style="font-size:9px;color:#555">${esc(eqName)}</span></div>`:`<div style="font-size:11px;color:var(--mut)">\u2014</div>`;
       if(invAuthed){
-        return `<div class="inv-row">
-          <div class="inv-nm">${esc(m.name)}${equipBadge}${infoLine}</div>
-          <div class="inv-stk ${qtyClass}">${typeof qty==="number"?qty:"—"}</div>
-          <div class="inv-loc-wrap"><input class="inv-loc-inp" id="iloc_${m.id}" placeholder="儲位" value="${locVal}" title="儲位"><button class="mini" onclick="setMatLoc('${m.id}')">存</button></div>
-          <div class="inv-ctrl">
-            <input id="iq_${m.id}" type="number" min="0" value="${typeof qty==="number"?qty:0}" inputmode="numeric" style="width:52px">
-            <button class="mini" onclick="invAdjust('${m.id}','in')">入庫+</button>
-            <button class="mini danger" onclick="invAdjust('${m.id}','out')">領料-</button>
-            <button class="mini" onclick="invPhotoBtn('mat','${m.id}')">📷</button>
-          </div>${photo}</div>`;
+        return `<div class="inv-tbl-row">
+          <div class="col-id">${esc(m.id)}</div>
+          <div class="col-cat" style="font-size:11px">${esc(m.cat)}<br><span style="color:var(--mut);font-size:10px">${esc(cname)}</span></div>
+          ${nameCell}${eqCell}
+          <div class="col-loc"><input class="inv-loc-inp" id="iloc_${m.id}" value="${locVal}" placeholder="儲位"><button class="mini" onclick="setMatLoc('${m.id}')">存</button></div>
+          <div class="col-qty ${qtyClass}">${typeof qty==="number"?qty:"\u2014"}</div>
+          <div class="col-unit">${esc(m.unit||"")}</div>
+          <div class="col-act">
+            <input id="iq_${m.id}" type="number" min="0" value="${typeof qty==="number"?qty:0}" style="width:40px;padding:3px;font-size:12px" inputmode="numeric">
+            <button class="mini" onclick="invAdjust('${m.id}','in')">入+</button>
+            <button class="mini danger" onclick="invAdjust('${m.id}','out')">出-</button>
+            <button class="mini" onclick="invPhotoBtn('mat','${m.id}')">${photo||"📷"}</button>
+          </div></div>`;
       }else{
-        return `<div class="inv-row">
-          <div class="inv-nm">${esc(m.name)}${equipBadge}${infoLine}</div>
-          <div class="inv-stk ${qtyClass}">${typeof qty==="number"?qty:"—"}</div>
-          <div class="inv-loc-ro">${locVal||'<span style="color:var(--mut)">—</span>'}</div>
-          <div class="inv-ctrl"><button class="b-photo" style="padding:5px 8px;font-size:12px" onclick="invPhotoBtn('mat','${m.id}')">📷</button></div>${photo}</div>`;
+        return `<div class="inv-tbl-row">
+          <div class="col-id">${esc(m.id)}</div>
+          <div class="col-cat" style="font-size:11px">${esc(m.cat)}<br><span style="color:var(--mut);font-size:10px">${esc(cname)}</span></div>
+          ${nameCell}${eqCell}
+          <div class="col-loc" style="font-size:12px;color:var(--navy)">${locVal||'<span style="color:var(--mut)">\u2014</span>'}</div>
+          <div class="col-qty ${qtyClass}">${typeof qty==="number"?qty:"\u2014"}</div>
+          <div class="col-unit">${esc(m.unit||"")}</div>
+          <div class="col-act">${photo?`<button class="mini" onclick="invPhotoBtn('mat','${m.id}')">📷</button>`:""}</div></div>`;
       }
     }).join("");
     return `<div class="inv-section" id="icat_${c}">
       <div class="inv-cat-hd" onclick="toggleInvCat('${c}')">
-        <span style="font-size:13px;font-weight:700;color:var(--navy)">${c}　${esc(cname)}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--navy)">${c}\u3000${esc(cname)}</span>
         <span style="font-size:12px;color:var(--mut)">${items.length} 項</span>
-        <span style="margin-left:auto;font-size:14px">${isOpen?"▲":"▼"}</span>
+        <span style="margin-left:auto;font-size:14px">${isOpen?"\u25b2":"\u25bc"}</span>
       </div>
-      <div id="ibody_${c}" style="display:${isOpen?"block":"none"}">${rows}</div>
+      <div id="ibody_${c}" style="display:${isOpen?"block":"none"}">${isOpen?tblHdr:""}${rows}</div>
     </div>`;
   }).join("");
-  // ── 新增耗材表單（管理員才顯示）──
-  const addForm=invAuthed?`<div class="card" id="inv_add_card">
-    <h3>＋ 手動新增耗材</h3>
+  const addForm=invAuthed?`<div class="card" id="inv_add_card" style="border:2px dashed var(--line);margin-top:12px">
+    <h3>\uff0b \u624b\u52d5\u65b0\u589e\u8017\u6750</h3>
     <div class="row" style="flex-wrap:wrap;gap:8px">
-      <div style="flex:1;min-width:120px"><label>大類</label>
+      <div style="flex:1;min-width:120px"><label>\u5927\u985e</label>
         <select id="na_cat">${Object.entries(CAT_MAP).map(([k,v])=>`<option value="${k}">${k} ${v}</option>`).join("")}</select></div>
-      <div style="flex:2;min-width:140px"><label>品項名稱*</label><input id="na_name" placeholder="品項名稱（必填）"></div>
+      <div style="flex:2;min-width:140px"><label>\u54c1\u9805\u540d\u7a31*</label><input id="na_name" placeholder="\u54c1\u9805\u540d\u7a31\uff08\u5fc5\u586b\uff09"></div>
     </div>
     <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:6px">
-      <div style="flex:2;min-width:140px"><label>規格/型號</label><input id="na_model" placeholder="規格或型號"></div>
-      <div style="flex:1;min-width:80px"><label>單位</label><input id="na_unit" placeholder="個/組/條…"></div>
+      <div style="flex:2;min-width:140px"><label>\u898f\u683c/\u578b\u865f</label><input id="na_model" placeholder="\u898f\u683c\u6216\u578b\u865f"></div>
+      <div style="flex:1;min-width:80px"><label>\u55ae\u4f4d</label><input id="na_unit" placeholder="\u500b/\u7d44/\u689d\u2026"></div>
     </div>
     <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:6px">
-      <div style="flex:1.5;min-width:120px"><label>歸屬機台</label>
-        <select id="na_equip"><option value="">—不指定—</option>${allEqs.map(e=>`<option value="${e.id}">${e.id}　${esc(e.name)}</option>`).join("")}</select></div>
-      <div style="flex:1;min-width:80px"><label>儲位</label><input id="na_loc" placeholder="如 C1001"></div>
-      <div style="flex:0 0 80px"><label>數量</label><input id="na_qty" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div style="flex:1.5;min-width:120px"><label>\u6b78\u5c6c\u6a5f\u53f0</label>
+        <select id="na_equip"><option value="">\u2014\u4e0d\u6307\u5b9a\u2014</option>${allEqs.map(e=>`<option value="${e.id}">${e.id}\u3000${esc(e.name)}</option>`).join("")}</select></div>
+      <div style="flex:1;min-width:80px"><label>\u5132\u4f4d</label><input id="na_loc" placeholder="\u5982 C1001"></div>
+      <div style="flex:0 0 80px"><label>\u6578\u91cf</label><input id="na_qty" type="number" min="0" value="0" inputmode="numeric"></div>
     </div>
-    <button class="act" style="width:100%;margin-top:10px" onclick="addMatItem()">新增到耗材主檔</button>
+    <button class="act" style="width:100%;margin-top:10px" onclick="addMatItem()">\u65b0\u589e\u5230\u8017\u6750\u4e3b\u6a94</button>
   </div>`:"";
+  const allCats=[...new Set(allMats.map(m=>m.cat))].sort();
   APP().innerHTML=invHeader()+`<main>
+    ${invAuthed?`<div class="card" id="inv_reqs">
+      <h3>📋 待發料申請${Object.values(REQS).filter(r=>r.status==="待發料").length>0?` <span style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px">${Object.values(REQS).filter(r=>r.status==="待發料").length}</span>`:"　<span style=\"font-size:12px;color:var(--mut)\">無</span>"}</h3>
+      ${(()=>{
+        const pending=Object.entries(REQS).filter(([k,r])=>r.status==="待發料").sort((a,b)=>(b[1].requestedAt||0)-(a[1].requestedAt||0));
+        if(!pending.length)return '<div class="hint">目前無待發料申請。</div>';
+        return pending.map(([rk,r])=>{
+          const matRows=r.materials.map(m=>{
+            const cur=+(MAT[m.id]||{}).qty;
+            const ok=cur==null||isNaN(cur)||cur>=m.qty;
+            return `<tr><td>${esc(m.id)}</td><td>${esc(m.name)}</td><td style="text-align:right">${m.qty}</td><td style="text-align:right;${ok?"color:var(--ok)":"color:var(--bad);font-weight:700"}">${cur!=null&&!isNaN(cur)?cur:"—"}</td><td style="font-size:11px">${ok?"✅":"⚠️庫存不足"}</td></tr>`;
+          }).join("");
+          return `<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">
+              <div><b>${esc(r.equipName||r.equip)}</b> <span class="mut">${esc(r.equip)}</span></div>
+              <div style="font-size:12px;color:var(--mut)">${dStr(r.requestedAt||0)} 申請人：${esc(r.reporter)}${(r.reporters||[]).length>1?" ("+r.reporters.join("、")+")":""}</div>
+            </div>
+            <table style="width:100%;margin:8px 0;font-size:12px"><tr><th>編號</th><th>品項</th><th>申請量</th><th>現有庫存</th><th></th></tr>${matRows}</table>
+            ${r.note?`<div style="font-size:12px;color:var(--mut)">備註：${esc(r.note)}</div>`:""}
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="act" onclick="confirmReq('${rk}',true)" style="flex:2">✅ 確認發料（扣庫存）</button>
+              <button class="sec danger" onclick="confirmReq('${rk}',false)" style="flex:1">✕ 取消申請</button>
+            </div>
+          </div>`;
+        }).join("");
+      })()}
+      ${(()=>{
+        const done=Object.entries(REQS).filter(([k,r])=>r.status==="已發料").sort((a,b)=>(b[1].confirmedAt||0)-(a[1].confirmedAt||0)).slice(0,5);
+        if(!done.length)return "";
+        return `<details style="margin-top:8px"><summary style="font-size:12px;color:var(--mut);cursor:pointer">最近已發料紀錄（${done.length}筆）</summary>${done.map(([k,r])=>`<div style="font-size:12px;padding:4px 0;border-top:1px solid var(--line)">${dStr(r.confirmedAt||0)} ${esc(r.equipName||r.equip)} · ${r.materials.map(m=>m.name+"×"+m.qty).join("、")} · 發料：${esc(r.confirmedBy||"")}</div>`).join("")}</details>`;
+      })()}
+    </div>`:""}
     <div class="card">
-      <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
-        <input id="inv_search" placeholder="搜尋品項/編號/型號/儲位…" value="${esc(fQ)}" oninput="window._invQ=this.value;invView()" style="flex:2;min-width:120px">
-        <select onchange="window._invFCat=this.value;invView()" style="flex:1;min-width:90px">
-          <option value="">全部大類</option>
-          ${allCats.map(c=>`<option value="${c}" ${c===fCat?"selected":""}>${c}　${CAT_MAP[c]||""}</option>`).join("")}
-        </select>
-        <select onchange="window._invFEq=this.value;invView()" style="flex:1.5;min-width:110px">
-          <option value="">全部機台</option>
-          ${allEqs.map(e=>`<option value="${e.id}" ${e.id===fEq?"selected":""}>${e.id}　${esc(e.name)}</option>`).join("")}
-        </select>
-        <select onchange="window._invFArea=this.value;invView()" style="flex:1;min-width:90px">
-          <option value="">全部區域</option>
-          ${allArs.map(a=>`<option value="${a.code}" ${a.code===fArea?"selected":""}>${a.code}　${esc(a.name)}</option>`).join("")}
-        </select>
+      <div class="row" style="gap:6px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1.2;min-width:100px"><label style="font-size:11px;color:var(--mut)">\u5340\u57df</label>
+          <select onchange="window._invFArea=this.value;window._invFEq='';invView()" style="width:100%;display:block;margin-top:2px">
+            <option value="">\u5168\u90e8\u5340\u57df</option>
+            ${allArs.map(a=>`<option value="${a.code}" ${a.code===fArea?"selected":""}>${a.code}\u3000${esc(a.name)}</option>`).join("")}
+          </select></div>
+        <div style="flex:1.5;min-width:110px"><label style="font-size:11px;color:var(--mut)">\u8a2d\u5099${fArea?" ("+eqsInArea.length+"\u53f0)":""}</label>
+          <select onchange="window._invFEq=this.value;invView()" style="width:100%;display:block;margin-top:2px">
+            <option value="">\u5168\u90e8\u8a2d\u5099</option>
+            ${eqsInArea.map(e=>`<option value="${e.id}" ${e.id===safeEq?"selected":""}>${e.id}\u3000${esc(e.name)}</option>`).join("")}
+          </select></div>
+        <div style="flex:1;min-width:80px"><label style="font-size:11px;color:var(--mut)">\u5927\u985e</label>
+          <select onchange="window._invFCat=this.value;invView()" style="width:100%;display:block;margin-top:2px">
+            <option value="">\u5168\u90e8\u5927\u985e</option>
+            ${allCats.map(c=>`<option value="${c}" ${c===fCat?"selected":""}>${c}\u3000${CAT_MAP[c]||""}</option>`).join("")}
+          </select></div>
+        <div style="flex:2;min-width:130px"><label style="font-size:11px;color:var(--mut)">\u641c\u5c0b</label>
+          <input id="inv_search" placeholder="\u54c1\u9805/\u7de8\u865f/\u578b\u865f/\u5132\u4f4d\u2026" value="${esc(fQ)}" oninput="window._invQ=this.value;invView()" style="width:100%;display:block;margin-top:2px"></div>
       </div>
-      <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
-        <button class="sec" onclick="invExpandAll(true)">▲ 收折全部</button>
-        <button class="sec" onclick="invExpandAll(false)">▼ 展開全部</button>
-        <span style="font-size:12px;color:var(--mut)">顯示 ${filtered.length}/${mats.length} 筆</span>
-        <button class="sec" style="margin-left:auto" onclick="invExportCSV()">📥 匯出 CSV</button>
-        ${!invAuthed?`<button class="sec" onclick="invLogin()">🔐 管理員登入</button>`:`<label class="sec" style="cursor:pointer;margin:0">📋 批次儲位<input type="file" accept=".csv" style="display:none" onchange="handleBatchLoc(this)"></label>`}
+      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
+        <button class="sec" onclick="invExpandAll(true)">\u25b2 \u6536\u6298\u5168\u90e8</button>
+        <button class="sec" onclick="invExpandAll(false)">\u25bc \u5c55\u958b\u5168\u90e8</button>
+        <span style="font-size:12px;color:var(--mut)">\u986f\u793a ${filtered.length}/${allMats.length} \u7b46</span>
+        ${fArea||safeEq||fCat||fQ?`<button class="sec" onclick="window._invQ='';window._invFCat='';window._invFEq='';window._invFArea='';invView()">\u2715 \u6e05\u9664\u7be9\u9078</button>`:""}
+        <button class="sec" style="margin-left:auto" onclick="invExportCSV()">\ud83d\udce5 \u532f\u51fa XLSX</button>
+        ${!invAuthed?`<button class="sec" onclick="invLogin()">\ud83d\udd10 \u7ba1\u7406\u54e1\u767b\u5165</button>`:`<label class="sec" style="cursor:pointer;margin:0">\ud83d\udccb \u6279\u6b21\u5132\u4f4d<input type="file" accept=".csv" style="display:none" onchange="handleBatchLoc(this)"></label><label class="sec" style="cursor:pointer;margin:0;background:#b45309;color:#fff">\ud83d\udce4 \u532f\u5165\u4e3b\u6a94 XLSX<input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleImportXLSX(this)"></label>`}
       </div>
-      <div class="hint" style="margin-top:4px">${invAuthed?"管理員：可入庫/領料/編輯儲位/上傳照片/新增耗材。":"唯讀，登入後可修改。"} 庫存≤1 <span class="badge-low">紅色</span>警示。</div>
+      <div class="hint" style="margin-top:4px">${invAuthed?"\u7ba1\u7406\u54e1\uff1a\u5165+/\u51fa-/\u5132\u4f4d/\u7167\u7247/\u65b0\u589e\u3002":"\u552f\u8b80\uff0c\u767b\u5165\u5f8c\u53ef\u4fee\u6539\u3002"} \u5eab\u5b58\u22641 <span class="badge-low">\u7d05\u8272</span></div>
     </div>
-    <div id="inv_body">${catBlocks||'<div class="hint" style="padding:16px">無符合條件的品項。請先在後台「主檔/單價」執行初始化。</div>'}</div>
+    <div id="inv_body">${catBlocks||'<div class="hint" style="padding:16px">\u7121\u7b26\u5408\u689d\u4ef6\u7684\u54c1\u9805\u3002</div>'}</div>
     ${addForm}
     <input type="file" id="inv_photo_input" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
     <input type="file" id="inv_photo_cam" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this)">
@@ -883,13 +1040,198 @@ window.setMatLoc=async function(id){
   }catch(e){toast("更新失敗："+e.message,"bad");}
 };
 window.invExportCSV=function(){
-  const cols=["耗材編號","品項","大類","規格/型號","單位","單價","庫存數量","儲位","備註"];
-  const rows=[cols.join(",")].concat(matArr().map(m=>[
-    m.id, m.name, m.cat, m.model||"", m.unit||"",
-    m.price!=null?m.price:"", m.qty!=null?m.qty:"—", m.loc||"", m.brand||""
-  ].map(x=>`"${String(x==null?"":x).replace(/"/g,'""')}"`).join(",")));
-  dlCSV(rows,"耗材庫存_"+todayStr()+".csv");
-  toast("已匯出 CSV（Excel 可直接開啟）","ok");
+  if(typeof XLSX==="undefined"){toast("XLSX 函式庫載入中，請稍後再試","bad");return;}
+  const mats=getInvMats();
+  const dateStr=todayStr();
+  const wb=XLSX.utils.book_new();
+  // ── Sheet1: 耗材主檔草稿 ──────────────────────────────────
+  const NAVY="0E5C63", WHITE="FFFFFF";
+  const OK_FILL="E6F6EC", WARN_FILL="FFF8E1", NO_FILL="FFFFFF";
+  const hdrs=["項次","料號","耗材編號","大類","大類名稱","品項名稱","規格/型號",
+               "歸屬設備編號","設備名稱","存放位置","庫存","單位","料號(Incomec)","備註"];
+  const data=mats.map((m,idx)=>{
+    const eqNm=(EQUIP[m.equip]||{}).name||"";
+    return [idx+1, m.partno||"", m.id, m.cat, m.catname||CAT_MAP[m.cat]||"",
+            m.name, m.model||"", m.equip||"", eqNm,
+            m.loc||"", m.qty!=null?+m.qty:"", m.unit||"",
+            m.partno||"", m.brand||""];
+  });
+  const wsData=[
+    ["BFY 工務報工制度 — 易損件耗材主檔 ("+dateStr+")"],
+    ["匯出自系統現況，庫存數量為即時值。"],
+    [],
+    hdrs,
+    ...data
+  ];
+  const ws1=XLSX.utils.aoa_to_sheet(wsData);
+  // 欄寬 (符合 v4 格式)
+  ws1["!cols"]=[
+    {wch:6},{wch:10},{wch:12},{wch:8},{wch:14},{wch:30},{wch:28},
+    {wch:16},{wch:28},{wch:14},{wch:8},{wch:8},{wch:12},{wch:20}
+  ];
+  // 合併標題列
+  ws1["!merges"]=[
+    {s:{r:0,c:0},e:{r:0,c:13}},
+    {s:{r:1,c:0},e:{r:1,c:13}},
+  ];
+  // 樣式套用 (SheetJS 免費版用 !cell 格式寫入)
+  const hdrFill={fgColor:{rgb:NAVY},patternType:"solid"};
+  const hdrFont={name:"Arial",bold:true,color:{rgb:WHITE},sz:10};
+  const titleFont={name:"Arial",bold:true,color:{rgb:NAVY},sz:14};
+  for(let c=0;c<hdrs.length;c++){
+    const addr=XLSX.utils.encode_cell({r:3,c});
+    if(!ws1[addr])ws1[addr]={v:hdrs[c],t:"s"};
+    ws1[addr].s={fill:hdrFill,font:hdrFont,alignment:{horizontal:"center",vertical:"center",wrapText:true}};
+  }
+  // 標題樣式
+  const a1=XLSX.utils.encode_cell({r:0,c:0});
+  if(ws1[a1])ws1[a1].s={font:titleFont};
+  // 資料行底色 (按是否有設備對應)
+  data.forEach((row,ri)=>{
+    const hasEq=!!row[7]; // equip field
+    const fillRgb=hasEq?OK_FILL:WARN_FILL;
+    const rowFill={fgColor:{rgb:fillRgb},patternType:"solid"};
+    const font={name:"Arial",sz:10};
+    for(let c=0;c<hdrs.length;c++){
+      const addr=XLSX.utils.encode_cell({r:4+ri,c});
+      if(!ws1[addr])ws1[addr]={v:"",t:"s"};
+      ws1[addr].s={fill:rowFill,font,alignment:{vertical:"center",wrapText:false}};
+    }
+  });
+  XLSX.utils.book_append_sheet(wb,ws1,"耗材主檔草稿");
+  // ── Sheet2: 大類統計 ─────────────────────────────────────
+  const catCount={};
+  mats.forEach(m=>{
+    if(!catCount[m.cat])catCount[m.cat]={cat:m.cat,name:m.catname||CAT_MAP[m.cat]||"",count:0,withLoc:0,totalQty:0};
+    catCount[m.cat].count++;
+    if(m.loc)catCount[m.cat].withLoc++;
+    catCount[m.cat].totalQty+=(m.qty||0);
+  });
+  const statHdrs=["大類代碼","大類名稱","品項數","有儲位","庫存總數"];
+  const statData=Object.values(catCount).sort((a,b)=>a.cat<b.cat?-1:1).map(x=>[x.cat,x.name,x.count,x.withLoc,x.totalQty]);
+  const ws2=XLSX.utils.aoa_to_sheet([statHdrs,...statData]);
+  ws2["!cols"]=[{wch:10},{wch:16},{wch:10},{wch:8},{wch:10}];
+  for(let c=0;c<statHdrs.length;c++){
+    const addr=XLSX.utils.encode_cell({r:0,c});
+    if(!ws2[addr])ws2[addr]={v:statHdrs[c],t:"s"};
+    ws2[addr].s={fill:{fgColor:{rgb:NAVY},patternType:"solid"},font:{name:"Arial",bold:true,color:{rgb:WHITE},sz:10}};
+  }
+  XLSX.utils.book_append_sheet(wb,ws2,"大類統計");
+  // ── Sheet3: 設備主檔(查詢用) ─────────────────────────────
+  const eqHdrs=["設備編號","設備名稱","線別","狀態"];
+  const eqData=eqArr().map(e=>[e.id,e.name,e.line||"",e.status||""]);
+  const ws3=XLSX.utils.aoa_to_sheet([eqHdrs,...eqData]);
+  ws3["!cols"]=[{wch:16},{wch:28},{wch:14},{wch:10}];
+  for(let c=0;c<eqHdrs.length;c++){
+    const addr=XLSX.utils.encode_cell({r:0,c});
+    if(!ws3[addr])ws3[addr]={v:eqHdrs[c],t:"s"};
+    ws3[addr].s={fill:{fgColor:{rgb:NAVY},patternType:"solid"},font:{name:"Arial",bold:true,color:{rgb:WHITE},sz:10}};
+  }
+  XLSX.utils.book_append_sheet(wb,ws3,"設備主檔(查詢用)");
+  // ── 輸出 ─────────────────────────────────────────────────
+  try{
+    XLSX.writeFile(wb,"易損件耗材主檔_"+dateStr+".xlsx");
+    toast("已匯出 XLSX（"+mats.length+"筆，3個分頁）","ok");
+  }catch(e){
+    toast("匯出失敗："+e.message,"bad");
+  }
+};
+window.confirmReq=async function(rk,approve){
+  const req=REQS[rk];if(!req)return toast("找不到申請單","bad");
+  if(approve){
+    if(!confirm(`確認發料？\n設備：${req.equipName||req.equip}\n品項：${req.materials.map(m=>m.name+"×"+m.qty).join("、")}\n\n確認後庫存將立即扣減。`))return;
+    const now=Date.now();
+    const by=ENGINEER||"倉管";
+    // 逐筆扣庫存
+    for(const mat of req.materials){
+      const cur=+(MAT[mat.id]||{}).qty;
+      if(cur==null||isNaN(cur))continue;
+      const nq=Math.max(0,cur-mat.qty);
+      await ROOT.child("material/"+mat.id+"/qty").set(nq);
+      if(MAT[mat.id])MAT[mat.id].qty=nq;
+      await ROOT.child("stocklog").push().set({matId:mat.id,matName:mat.name,type:"out",delta:mat.qty,before:cur,after:nq,by,woKey:req.woKey||"",ts:now});
+    }
+    await ROOT.child("requisitions/"+rk).update({status:"已發料",confirmedAt:now,confirmedBy:by});
+    if(REQS[rk])Object.assign(REQS[rk],{status:"已發料",confirmedAt:now,confirmedBy:by});
+    await logAudit("confirm","確認發料 "+req.equip+" / "+req.materials.map(m=>m.name+"×"+m.qty).join("、"));
+    toast("已發料完成，庫存已扣減","ok");
+  }else{
+    if(!confirm(`取消申請單？\n設備：${req.equipName||req.equip}`))return;
+    await ROOT.child("requisitions/"+rk).update({status:"已取消",confirmedAt:Date.now(),confirmedBy:ENGINEER||"倉管"});
+    if(REQS[rk])REQS[rk].status="已取消";
+    toast("申請已取消","ok");
+  }
+  await loadMasters();invView();
+};
+window.handleImportXLSX=async function(input){
+  if(!invAuthed)return toast("需管理員登入","bad");
+  if(typeof XLSX==="undefined")return toast("XLSX 函式庫未載入，請重新整理頁面","bad");
+  const file=input.files[0];if(!file)return;
+  if(!file.name.match(/\.xlsx?$/i))return toast("請選擇 .xlsx 或 .xls 檔案","bad");
+  const reader=new FileReader();
+  reader.onload=async function(ev){
+    try{
+      const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+      // 讀「耗材主檔草稿」分頁（與匯出格式一致）
+      const sheetName=wb.SheetNames.find(s=>s.includes("耗材主檔")) || wb.SheetNames[0];
+      const ws=wb.Sheets[sheetName];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+      // 找 header 列（包含「耗材編號」的列）
+      let hdrRow=-1;
+      for(let r=0;r<Math.min(8,rows.length);r++){
+        if(rows[r].some(v=>String(v).includes("耗材編號"))){hdrRow=r;break;}
+      }
+      if(hdrRow<0)return toast("找不到標題列（需含「耗材編號」）","bad");
+      const hdrs=rows[hdrRow].map(v=>String(v||"").trim());
+      // 欄位對應（與匯出格式一致）
+      const col={
+        id:    hdrs.findIndex(h=>h.includes("耗材編號")),
+        cat:   hdrs.findIndex(h=>h==="大類"||h==="大類代碼"),
+        catname:hdrs.findIndex(h=>h.includes("大類名稱")),
+        name:  hdrs.findIndex(h=>h.includes("品項名稱")),
+        model: hdrs.findIndex(h=>h.includes("規格")||h.includes("型號")),
+        equip: hdrs.findIndex(h=>h.includes("歸屬設備")),
+        loc:   hdrs.findIndex(h=>h.includes("存放位置")||h.includes("儲位")),
+        qty:   hdrs.findIndex(h=>h.includes("庫存")),
+        unit:  hdrs.findIndex(h=>h==="單位"),
+        partno:hdrs.findIndex(h=>h.includes("料號")),
+      };
+      const dataRows=rows.slice(hdrRow+1).filter(r=>r[col.id]&&String(r[col.id]).trim());
+      if(!dataRows.length)return toast("沒有找到有效資料行","bad");
+      if(!confirm(`⚠️ 即將用 XLSX 中的 ${dataRows.length} 筆資料\n完全取代 Firebase 現有耗材主檔（${Object.keys(MAT).length} 筆）。\n\n此操作不可回復，確定匯入？`))return;
+      toast("匯入中，請稍候…","");
+      const mo={};
+      dataRows.forEach(r=>{
+        const id=String(r[col.id]||"").trim();
+        if(!id)return;
+        const qty=col.qty>=0?r[col.qty]:"";
+        mo[id]={
+          id,
+          cat:      col.cat>=0?String(r[col.cat]||"").trim():"",
+          catname:  col.catname>=0?String(r[col.catname]||"").trim():"",
+          name:     col.name>=0?String(r[col.name]||"").trim():id,
+          model:    col.model>=0?String(r[col.model]||"").trim():"",
+          equip:    col.equip>=0?String(r[col.equip]||"").trim():"",
+          loc:      col.loc>=0?String(r[col.loc]||"").trim():"",
+          qty:      qty!==""&&qty!=="—"?+qty||0:0,
+          unit:     col.unit>=0?String(r[col.unit]||"").trim():"",
+          partno:   col.partno>=0?String(r[col.partno]||"").trim():"",
+          price:    (MAT[id]||{}).price||1,   // 保留現有單價
+          photo:    (MAT[id]||{}).photo||"",  // 保留現有照片
+        };
+      });
+      await ROOT.child("material").set(mo);
+      await logAudit("import","XLSX匯入耗材主檔："+Object.keys(mo).length+"筆，取代原有"+Object.keys(MAT).length+"筆");
+      await loadMasters();
+      toast("✅ 匯入完成："+Object.keys(mo).length+" 筆耗材已更新","ok");
+      invView();
+    }catch(e){
+      toast("匯入失敗："+e.message,"bad");
+      console.error(e);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  input.value="";
 };
 window.handleBatchLoc=async function(input){
   if(!invAuthed)return toast("需管理員登入","bad");
