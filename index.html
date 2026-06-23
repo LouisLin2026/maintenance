@@ -190,7 +190,8 @@ function engScan(eqid){
   const open=woArr().filter(w=>w.equip===eqid&&w.status!=="已完成").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   mLines=[{}];activeWO=null;
   APP().innerHTML=engHeader(ENGINEER)+`<main>
-    <div class="card"><div class="big">${esc(eq.name)}</div><div class="hint">${esc(eq.id)}　${esc(eq.line||"")}</div></div>
+    <div class="card"><div class="big">${esc(eq.name)}</div><div class="hint">${esc(eq.id)}　${esc(eq.line||"")}</div>
+      <button class="sec" style="margin-top:8px" onclick="viewEngHist('${eqid}')">📋 查設備履歷</button></div>
     <div class="card"><h3>本設備未完成工單</h3><div>${open.length?open.map(w=>woCardRecv(w,eqid)).join(""):'<div class="hint">無，可用下方直接新增回報。</div>'}</div></div>
     <div class="card"><h3>＋ 新增工作並回報</h3><label>類別</label><select id="r_src"><option>保養</option><option>維修</option><option>優化</option></select><div id="rform"></div></div></main>`;
   renderReportForm(eqid,null);
@@ -282,10 +283,10 @@ function adminView(){
     <div class="tabs">
       <button data-t="dispatch">派工總覽</button><button data-t="reports">報工總表</button>
       <button data-t="master">主檔/單價</button><button data-t="cost">成本</button>
-      <button data-t="perf">效益分析</button><button data-t="plan">保養排程</button><button data-t="area">叫修區域</button><button data-t="qr">QR列印</button>
+      <button data-t="perf">效益分析</button><button data-t="plan">保養排程</button><button data-t="hist">設備履歷</button><button data-t="area">叫修區域</button><button data-t="qr">QR列印</button>
     </div><div id="adminBody"></div></main>`;
   document.querySelectorAll(".tabs button").forEach(b=>{b.classList.toggle("on",b.dataset.t===adminTab);b.onclick=()=>{adminTab=b.dataset.t;adminView();};});
-  ({dispatch:admDispatch,reports:admReports,master:admMaster,cost:admCost,perf:admPerf,plan:admPlan,area:admArea,qr:admQR}[adminTab])();
+  ({dispatch:admDispatch,reports:admReports,master:admMaster,cost:admCost,perf:admPerf,plan:admPlan,hist:admHist,area:admArea,qr:admQR}[adminTab])();
 }
 function admDispatch(){const eqs=eqArr();
   $("#adminBody").innerHTML=`<div class="card"><h3>新增派工單</h3>
@@ -321,13 +322,135 @@ function admReports(){const reps=repArr().sort((a,b)=>(b.createdAt||0)-(a.create
 window.delRep=async function(k){if(!confirm("刪除此報工紀錄？"))return;await ROOT.child("reports/"+k).remove();toast("已刪除","ok");admReports();};
 window.editRep=function(k){const r=REPS[k];const nh=prompt("工時(小時)",r.hours);if(nh===null)return;const np=prompt("進度(進行中/已完成/待料)",r.progress);if(np===null)return;const nn=prompt("備註",r.note||"");ROOT.child("reports/"+k).update({hours:+nh||0,progress:np,note:nn}).then(()=>{toast("已更新","ok");admReports();});};
 
-function admMaster(){const seeded=Object.keys(EQUIP).length>0;const mats=matArr();
-  $("#adminBody").innerHTML=`<div class="card"><h3>主檔初始化</h3><div class="hint">設備：${Object.keys(EQUIP).length}　耗材：${Object.keys(MAT).length}　費率：${CONF.laborRate} 元/時</div>
-    <button class="${seeded?"sec":"act"}" style="margin-top:10px" onclick="seedAll()">${seeded?"重新寫入主檔(覆蓋)":"一鍵初始化(78設備+118耗材)"}</button></div>
-    <div class="card"><h3>工時費率</h3><div class="row"><input id="rate" type="number" value="${CONF.laborRate}"><button class="sec" onclick="saveRate()">儲存</button></div></div>
-    <div class="card"><h3>耗材單價(${mats.length})</h3><div class="row noprint"><input id="bulk" type="number" placeholder="一鍵全部設為此價"><button class="sec" onclick="bulkPrice()">套用全部</button></div>
-    <div style="max-height:50vh;overflow:auto;margin-top:8px"><table><tr><th>編號</th><th>品項</th><th class="n">單價</th></tr>
-    ${mats.map(m=>`<tr><td>${m.id}</td><td>${esc(m.name)}</td><td class="n"><input style="width:78px;padding:5px;text-align:right" type="number" value="${m.price!=null?m.price:1}" onchange="setPrice('${m.id}',this.value)"></td></tr>`).join("")}</table></div></div>`;}
+function admMaster(){const seeded=Object.keys(EQUIP).length>0;const mats=matArr();const eqs=eqArr();
+  $("#adminBody").innerHTML=`
+  <div class="card"><h3>主檔初始化</h3>
+    <div class="hint">設備：${eqs.length}　耗材：${mats.length}　費率：${CONF.laborRate} 元/時</div>
+    <button class="${seeded?"sec":"act"}" style="margin-top:10px" onclick="seedAll()">${seeded?"重新寫入主檔(覆蓋)":"一鍵初始化(78設備+118耗材)"}</button>
+  </div>
+  <div class="card"><h3>工時費率</h3>
+    <div class="row"><input id="rate" type="number" value="${CONF.laborRate}"><button class="sec" onclick="saveRate()">儲存</button></div>
+  </div>
+  <div class="card"><h3>設備主檔（${eqs.length} 台）</h3>
+    <div class="row noprint" style="margin-bottom:10px">
+      <button class="sec" onclick="exportEqCSV()">匯出設備 CSV</button>
+    </div>
+    <div class="card" style="background:#f8fafa;margin-bottom:10px"><h3>新增設備</h3>
+      <div class="row">
+        <div><label>設備編號</label><input id="neq_id" placeholder="如 CV_03PK3B"></div>
+        <div><label>設備名稱</label><input id="neq_name" placeholder="如 輸送機C"></div>
+      </div>
+      <div class="row">
+        <div><label>線別/課別</label><input id="neq_line" placeholder="如 包裝線"></div>
+        <div><label>狀態</label><select id="neq_status"><option>使用中</option><option>停用</option><option>閒置</option><option>待修</option></select></div>
+      </div>
+      <button class="sec" style="margin-top:10px;width:100%" onclick="addEquip()">＋ 新增</button>
+    </div>
+    <div style="max-height:50vh;overflow:auto">
+      <table><tr><th>編號</th><th>名稱</th><th>線別</th><th>狀態</th><th></th></tr>
+      ${eqs.map(e=>`<tr id="eqrow_${e.id}">
+        <td><span id="eqv_id_${e.id}">${esc(e.id)}</span></td>
+        <td><span id="eqv_name_${e.id}">${esc(e.name)}</span></td>
+        <td><span id="eqv_line_${e.id}">${esc(e.line||"")}</span></td>
+        <td><span id="eqv_status_${e.id}">${esc(e.status||"")}</span></td>
+        <td style="white-space:nowrap">
+          <button class="mini" onclick="editEqRow('${e.id}')">改</button>
+          <button class="mini danger" onclick="delEquip('${e.id}')">刪</button>
+        </td></tr>`).join("")}
+      </table>
+    </div>
+  </div>
+  <div class="card"><h3>耗材主檔（${mats.length} 筆）</h3>
+    <div class="row noprint" style="margin-bottom:8px;flex-wrap:wrap;gap:6px">
+      <div class="row" style="flex:2"><input id="bulk" type="number" placeholder="一鍵全部設為此價"><button class="sec" onclick="bulkPrice()">套用單價</button></div>
+      <button class="sec" onclick="exportMatCSV()">匯出 CSV</button>
+      <label class="sec" style="cursor:pointer;margin:0">匯入 CSV<input type="file" accept=".csv" style="display:none" onchange="importMatCSV(this)"></label>
+    </div>
+    <div class="hint" style="margin-bottom:6px">直接修改欄位後按 Enter 或點其他欄即自動儲存。CSV 格式：MaterialID,品項,廠牌,規格型號,單位,單價</div>
+    <div style="max-height:52vh;overflow:auto">
+      <table><tr><th>編號</th><th>品項</th><th>廠牌</th><th>規格/型號</th><th>單位</th><th class="n">單價</th></tr>
+      ${mats.map(m=>`<tr>
+        <td><input class="mini" style="width:60px" value="${esc(m.id)}" onchange="setMatField('${m.id}','id',this.value)"></td>
+        <td><input class="mini" style="width:120px" value="${esc(m.name)}" onchange="setMatField('${m.id}','name',this.value)"></td>
+        <td><input class="mini" style="width:90px" value="${esc(m.brand||"")}" onchange="setMatField('${m.id}','brand',this.value)"></td>
+        <td><input class="mini" style="width:100px" value="${esc(m.model||"")}" onchange="setMatField('${m.id}','model',this.value)"></td>
+        <td><input class="mini" style="width:48px" value="${esc(m.unit||"")}" onchange="setMatField('${m.id}','unit',this.value)"></td>
+        <td class="n"><input class="mini" style="width:72px;text-align:right" type="number" value="${m.price!=null?m.price:1}" onchange="setPrice('${m.id}',this.value)"></td>
+      </tr>`).join("")}
+      </table>
+    </div>
+  </div>`;
+}
+window.addEquip=async function(){
+  const id=$("#neq_id").value.trim(),name=$("#neq_name").value.trim();
+  if(!id||!name)return toast("請填設備編號與名稱","bad");
+  if(EQUIP[id])return toast("編號已存在："+id,"bad");
+  await ROOT.child("equipment/"+id).set({id,name,line:$("#neq_line").value.trim(),status:$("#neq_status").value});
+  await loadMasters();toast("已新增 "+id,"ok");admMaster();
+};
+window.editEqRow=function(id){
+  const e=EQUIP[id];if(!e)return;
+  const row=document.getElementById("eqrow_"+id);if(!row)return;
+  row.innerHTML=`
+    <td><input class="mini" style="width:80px" id="ei_id" value="${esc(e.id)}"></td>
+    <td><input class="mini" style="width:110px" id="ei_name" value="${esc(e.name)}"></td>
+    <td><input class="mini" style="width:80px" id="ei_line" value="${esc(e.line||"")}"></td>
+    <td><select class="mini" id="ei_status"><option ${e.status==="使用中"?"selected":""}>使用中</option><option ${e.status==="停用"?"selected":""}>停用</option><option ${e.status==="閒置"?"selected":""}>閒置</option><option ${e.status==="待修"?"selected":""}>待修</option></select></td>
+    <td><button class="mini" onclick="saveEqEdit('${id}')">存</button><button class="mini danger" onclick="admMaster()">取消</button></td>`;
+};
+window.saveEqEdit=async function(oldId){
+  const newId=$("#ei_id").value.trim(),name=$("#ei_name").value.trim();
+  if(!newId||!name)return toast("請填編號與名稱","bad");
+  const upd={id:newId,name,line:$("#ei_line").value.trim(),status:$("#ei_status").value};
+  if(newId!==oldId){
+    await ROOT.child("equipment/"+oldId).remove();
+    await ROOT.child("equipment/"+newId).set(upd);
+  }else{
+    await ROOT.child("equipment/"+oldId).update(upd);
+  }
+  await loadMasters();toast("已儲存","ok");admMaster();
+};
+window.delEquip=async function(id){if(!confirm("刪除設備 "+id+"？"))return;await ROOT.child("equipment/"+id).remove();await loadMasters();toast("已刪除","ok");admMaster();};
+window.setMatField=async function(id,field,val){
+  if(field==="id"&&val!==id){
+    const old=MAT[id];if(!old)return;const nw=Object.assign({},old,{id:val});
+    await ROOT.child("material/"+id).remove();await ROOT.child("material/"+val).set(nw);
+    await loadMasters();toast("編號已更新","ok");admMaster();return;
+  }
+  await ROOT.child("material/"+id+"/"+field).set(val);if(MAT[id])MAT[id][field]=val;toast("已更新 "+id,"ok");
+};
+window.exportEqCSV=function(){
+  const cols=["設備編號","設備名稱","線別","狀態"];
+  const rows=[cols.join(",")].concat(eqArr().map(e=>[e.id,e.name,e.line||"",e.status||""].map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")));
+  dlCSV(rows,"設備主檔_"+todayStr()+".csv");
+};
+window.exportMatCSV=function(){
+  const cols=["MaterialID","品項","廠牌","規格型號","單位","單價"];
+  const rows=[cols.join(",")].concat(matArr().map(m=>[m.id,m.name,m.brand||"",m.model||"",m.unit||"",m.price||0].map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")));
+  dlCSV(rows,"耗材主檔_"+todayStr()+".csv");
+};
+window.importMatCSV=function(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const lines=e.target.result.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2)return toast("CSV 無資料","bad");
+    let ok=0,fail=0;
+    for(const line of lines.slice(1)){
+      const cols=line.split(",").map(c=>c.replace(/^"|"$/g,"").replace(/""/g,'"'));
+      const [id,name,brand,model,unit,price]=cols;
+      if(!id||!name){fail++;continue;}
+      await ROOT.child("material/"+id).set({id,name,cat:(MAT[id]||{}).cat||"",brand:brand||"",model:model||"",unit:unit||"",price:+price||0});
+      ok++;
+    }
+    await loadMasters();toast(`匯入完成：${ok} 筆，失敗 ${fail} 筆`,"ok");admMaster();
+  };
+  reader.readAsText(file,"UTF-8");
+};
+function dlCSV(rows,filename){
+  const blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv"});
+  const a=el("a",{href:URL.createObjectURL(blob),download:filename});a.click();
+}
 window.seedAll=async function(){if(!confirm("寫入主檔？(覆蓋設備/耗材/區域主檔)"))return;const eo={};SEED_EQ.forEach(e=>eo[e.id]={id:e.id,name:e.name,line:e.line,status:e.status});const mo={};SEED_MAT.forEach(m=>mo[m.id]={id:m.id,name:m.name,cat:m.cat,unit:m.unit,price:1});const ao={};DEFAULT_AREAS.forEach(a=>ao[a.code]=a);await ROOT.child("equipment").set(eo);await ROOT.child("material").set(mo);await ROOT.child("areas").update(ao);await ROOT.child("config").update({laborRate:CONF.laborRate||DEFAULT_RATE,pin:CONF.pin||DEFAULT_PIN});await loadMasters();toast("主檔已初始化","ok");admMaster();};
 window.saveRate=async function(){const v=+$("#rate").value||DEFAULT_RATE;await ROOT.child("config/laborRate").set(v);CONF.laborRate=v;toast("已儲存","ok");};
 window.bulkPrice=async function(){const v=+$("#bulk").value;if(isNaN(v))return toast("請輸入數字","bad");const o={};matArr().forEach(m=>o[m.id+"/price"]=v);await ROOT.child("material").update(o);await loadMasters();toast("全部單價設為 "+v,"ok");admMaster();};
@@ -336,9 +459,21 @@ window.setPrice=async function(id,v){await ROOT.child("material/"+id+"/price").s
 function costOf(r){const labor=(r.hours||0)*(CONF.laborRate||DEFAULT_RATE);let mat=0;(r.materials||[]).forEach(m=>{const p=(MAT[m.id]||{}).price;mat+=(m.qty||0)*(p!=null?p:0);});return{labor,mat,total:labor+mat};}
 function admCost(){const reps=repArr();let tot=0,byMon={},byType={保養:0,維修:0,優化:0,故障叫修:0};
   reps.forEach(r=>{const c=costOf(r);tot+=c.total;const mon=dStr(r.createdAt).slice(0,7);byMon[mon]=(byMon[mon]||0)+c.total;if(byType[r.source]!=null)byType[r.source]+=c.total;});
-  $("#adminBody").innerHTML=`<div class="card center"><div class="hint">累計報工成本(${reps.length}筆)</div><div class="big" style="font-size:28px">${nf(tot)} 元</div><button class="sec noprint" style="margin-top:10px" onclick="exportCSV()">匯出 CSV</button></div>
+  $("#adminBody").innerHTML=`<div class="card center"><div class="hint">累計報工成本(${reps.length}筆)</div><div class="big" style="font-size:28px">${nf(tot)} 元</div>
+    <div class="row noprint" style="margin-top:10px;justify-content:center;gap:8px">
+      <button class="sec" onclick="exportCSV()">報工明細 CSV</button>
+      <button class="sec" onclick="exportCostCSV()">成本彙整 CSV</button>
+    </div></div>
     <div class="card"><h3>類別成本</h3><table><tr><th>類別</th><th class="n">成本</th></tr>${Object.entries(byType).map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")}</table></div>
     <div class="card"><h3>各月成本</h3><table><tr><th>月份</th><th class="n">成本</th></tr>${Object.entries(byMon).sort().map(([k,v])=>`<tr><td>${k}</td><td class="n">${nf(v)}</td></tr>`).join("")||'<tr><td colspan=2 class="hint">尚無</td></tr>'}</table></div>`;}
+window.exportCostCSV=function(){
+  const reps=repArr().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const byMon={},byEq={};
+  reps.forEach(r=>{const c=costOf(r);const mon=dStr(r.createdAt).slice(0,7);byMon[mon]=(byMon[mon]||0)+c.total;const k=r.equip||"—";byEq[k]=byEq[k]||{name:r.equipName||k,cost:0};byEq[k].cost+=c.total;});
+  const rows=["月份,成本"].concat(Object.entries(byMon).sort().map(([k,v])=>`"${k}",${v}`));
+  rows.push("","設備,成本");Object.entries(byEq).sort((a,b)=>b[1].cost-a[1].cost).forEach(([k,v])=>rows.push(`"${k} ${v.name}",${v.cost}`));
+  dlCSV(rows,"成本彙整_"+todayStr()+".csv");
+};
 window.exportCSV=function(){const cols=["時間","設備","設備名稱","來源","回報人","進度","工時","耗材明細","工時成本","耗材成本","總成本"];const rows=[cols.join(",")];
   repArr().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(r=>{const c=costOf(r);const md=(r.materials||[]).map(m=>m.name+"x"+m.qty).join(" / ");rows.push([new Date(r.createdAt||0).toLocaleString(),r.equip,r.equipName,r.source||"",r.reporter,r.progress,r.hours,md,c.labor,c.mat,c.total].map(x=>`"${(x==null?"":String(x)).replace(/"/g,'""')}"`).join(","));});
   const blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv"});const a=el("a",{href:URL.createObjectURL(blob),download:"工務報工_"+todayStr()+".csv"});a.click();};
@@ -359,7 +494,8 @@ function admPerf(){
   const byMat={};reps.forEach(r=>(r.materials||[]).forEach(m=>{const p=(MAT[m.id]||{}).price||0;byMat[m.id]=byMat[m.id]||{name:m.name,qty:0,cost:0};byMat[m.id].qty+=m.qty||0;byMat[m.id].cost+=(m.qty||0)*p;}));
   const matTop=Object.entries(byMat).sort((a,b)=>b[1].cost-a[1].cost).slice(0,10);
   $("#adminBody").innerHTML=`
-  <div class="card"><h3>工程師當日效益</h3><label>日期</label><input id="perfDate" type="date" value="${d}" onchange="admPerf()">
+  <div class="card"><h3>工程師當日效益</h3><label>日期</label>
+    <div class="row"><input id="perfDate" type="date" value="${d}" onchange="admPerf()" style="flex:2"><button class="sec" onclick="exportPerfCSV()">效益 CSV</button></div>
     <table style="margin-top:10px"><tr><th>工程師</th><th class="n">筆數</th><th class="n">完成</th><th class="n">工時</th><th class="n">成本</th></tr>
     ${REPORTERS.map(n=>{const e=byEngDay[n];return `<tr><td>${n}</td><td class="n">${e.n}</td><td class="n">${e.done}</td><td class="n">${e.hr}</td><td class="n">${nf(e.cost)}</td></tr>`;}).join("")}</table></div>
   <div class="card"><h3>工程師累計效益</h3><table><tr><th>工程師</th><th class="n">總筆數</th><th class="n">總工時</th><th class="n">總成本</th></tr>
@@ -370,6 +506,15 @@ function admPerf(){
   <div class="card"><h3>最燒耗材 Top10</h3><table><tr><th>耗材</th><th class="n">用量</th><th class="n">金額</th></tr>${matTop.map(([k,v])=>`<tr><td>${esc(v.name)}</td><td class="n">${v.qty}</td><td class="n">${nf(v.cost)}</td></tr>`).join("")||'<tr><td colspan=3 class="hint">尚無</td></tr>'}</table></div>`;
 }
 window.admPerf=admPerf;
+window.exportPerfCSV=function(){
+  const reps=repArr();
+  const byEng={};REPORTERS.forEach(n=>byEng[n]={n:0,hr:0,cost:0,fix:0,maint:0});
+  reps.forEach(r=>{const c=costOf(r);const e=byEng[r.reporter];if(e){e.n++;e.hr+=r.hours||0;e.cost+=c.total;if(r.source==="維修"||r.source==="故障叫修")e.fix++;if(r.source==="保養")e.maint++;}});
+  const rows=["工程師,總筆數,保養,維修,總工時,總成本"].concat(REPORTERS.map(n=>{const e=byEng[n];return `"${n}",${e.n},${e.maint},${e.fix},${e.hr},${e.cost}`;}));
+  const byEq={};reps.forEach(r=>{const k=r.equip||"—";byEq[k]=byEq[k]||{name:r.equipName||k,n:0,fix:0,maint:0,hr:0,cost:0};const c=costOf(r);byEq[k].n++;if(r.source==="維修"||r.source==="故障叫修")byEq[k].fix++;if(r.source==="保養")byEq[k].maint++;byEq[k].hr+=r.hours||0;byEq[k].cost+=c.total;});
+  rows.push("","設備,次數,維修,保養,工時,成本");Object.entries(byEq).sort((a,b)=>b[1].cost-a[1].cost).forEach(([k,v])=>rows.push(`"${k} ${v.name}",${v.n},${v.fix},${v.maint},${v.hr},${v.cost}`));
+  dlCSV(rows,"效益分析_"+todayStr()+".csv");
+};
 
 function admPlan(){
   const plans=planArr();const seeded=plans.length>0;
@@ -386,17 +531,55 @@ function admPlan(){
     <button class="act" style="margin-top:0" onclick="genDuePlans()">一鍵產生到期保養工單</button></div>
     <div class="hint">工程師報「已完成」後，下次到期日自動往後滾。</div>
     <div style="max-height:52vh;overflow:auto;margin-top:10px"><table><tr><th>設備</th><th>保養項目</th><th>週期</th><th>下次到期</th><th>預設指派</th></tr>
-    ${due.slice(0,300).map(p=>`<tr><td>${esc(p.eqName)}<br><span class="mut">${esc(p.eqId)}</span></td><td style="font-size:12px">${esc(p.item)}</td><td>${esc(p.cycle)}</td><td>${esc(p.nextDue)}${openWOForPlan(p.id)?' <span class="pill s-進行中">已產生</span>':''}</td><td><select class="mini" onchange="setPlanAssignee('${p._k}',this.value)"><option value="">—</option>${REPORTERS.map(n=>`<option ${p.assignedTo===n?"selected":""}>${n}</option>`).join("")}</select></td></tr>`).join("")||'<tr><td colspan=5 class="hint">目前沒有到期項目</td></tr>'}
+    ${due.slice(0,300).map(p=>`<tr>
+        <td>${esc(p.eqName)}<br><span class="mut">${esc(p.eqId)}</span></td>
+        <td style="font-size:12px">${esc(p.item)}</td>
+        <td>${esc(p.cycle)}</td>
+        <td>
+          <input type="date" class="mini" style="width:120px" value="${esc(p.nextDue)}" onchange="setPlanDue('${p._k}',this.value)">
+          ${p.isHolidayAdj?'<span class="pill s-待料" title="原始日期('+esc(p.origDue||"")+'）為假日，已自動調整">假日調整</span>':''}
+          ${openWOForPlan(p.id)?' <span class="pill s-進行中">已產生</span>':''}
+        </td>
+        <td><select class="mini" onchange="setPlanAssignee('${p._k}',this.value)"><option value="">—</option>${REPORTERS.map(n=>`<option ${p.assignedTo===n?"selected":""}>${n}</option>`).join("")}</select></td>
+      </tr>`).join("")||'<tr><td colspan=5 class="hint">目前沒有到期項目</td></tr>'}
     </table></div></div>`:''}`;
 }
 window.admPlan=admPlan;
+const TW_HOLIDAYS_2026=new Set(["2026-01-01","2026-01-02","2026-01-28","2026-01-29","2026-01-30","2026-01-31","2026-02-02","2026-02-03","2026-02-04","2026-02-27","2026-02-28","2026-03-01","2026-04-03","2026-04-04","2026-04-05","2026-04-06","2026-05-01","2026-06-19","2026-09-18","2026-10-09","2026-10-10","2026-12-25","2026-12-31"]);
+function nextWorkday(dateStr){
+  let d=new Date(dateStr+"T00:00:00");
+  let n=0;
+  while(n<14){const w=d.getDay(),s=d.toISOString().slice(0,10);if(w!==0&&w!==6&&!TW_HOLIDAYS_2026.has(s))return s;d=new Date(d.getTime()+864e5);n++;}
+  return dateStr;
+}
+function isHoliday(dateStr){const d=new Date(dateStr+"T00:00:00");return d.getDay()===0||d.getDay()===6||TW_HOLIDAYS_2026.has(dateStr);}
+function planDueFromYearStart(months,cycleDays,year){
+  year=year||new Date().getFullYear();
+  const from=new Date(year,0,1);
+  return nextWorkday(nextDueFrom(months,from));
+}
 window.importPlans=async function(){
-  if(!confirm("匯入/重置保養計畫？"))return;
-  const n=new Date(),from=new Date(n.getFullYear(),n.getMonth(),1),o={};
-  SEED_PLANS.forEach(p=>{const pid=p.eqId+"-"+(p.seq||"x");o[pid]={id:pid,eqId:p.eqId,eqName:p.eqName,seq:p.seq,item:p.item,cycle:p.cycle,cycleDays:p.cycleDays,months:p.months,assignedTo:"",lastDone:null,nextDue:nextDueFrom(p.months,from),active:true};});
-  await ROOT.child("plans").set(o);await loadMasters();toast("已匯入 "+Object.keys(o).length+" 項","ok");admPlan();
+  if(!confirm("匯入/重置保養計畫？(以 1/1 為起始日，週期分配到期日，自動避開節假日)"))return;
+  const year=new Date().getFullYear();const o={};
+  SEED_PLANS.forEach(p=>{
+    const pid=p.eqId+"-"+(p.seq||"x");
+    const raw=nextDueFrom(p.months,new Date(year,0,1));
+    const due=nextWorkday(raw);
+    const holiday=isHoliday(raw);
+    o[pid]={id:pid,eqId:p.eqId,eqName:p.eqName,seq:p.seq,item:p.item,cycle:p.cycle,cycleDays:p.cycleDays,months:p.months,assignedTo:"",lastDone:null,nextDue:due,origDue:raw,isHolidayAdj:holiday,active:true};
+  });
+  await ROOT.child("plans").set(o);await loadMasters();toast("已匯入 "+Object.keys(o).length+" 項（1/1 起始，已自動避開假日）","ok");admPlan();
 };
-window.setPlanAssignee=async function(k,v){await ROOT.child("plans/"+k+"/assignedTo").set(v);if(PLANS[k])PLANS[k].assignedTo=v;toast("已設定","ok");};
+window.setPlanAssignee=async function(k,v){
+  await ROOT.child("plans/"+k+"/assignedTo").set(v);
+  if(PLANS[k])PLANS[k].assignedTo=v;toast("已設定","ok");
+};
+window.setPlanDue=async function(k,v){
+  const warn=isHoliday(v)?" ⚠️ 此日為假日，建議改期":"";
+  await ROOT.child("plans/"+k).update({nextDue:v,isHolidayAdj:false});
+  if(PLANS[k]){PLANS[k].nextDue=v;PLANS[k].isHolidayAdj=false;}
+  toast("到期日已更新"+warn,warn?"bad":"ok");
+};
 window.genDuePlans=async function(){
   const ga=$("#genAssign")?$("#genAssign").value:"";
   const due=planArr().filter(planDue).filter(p=>!openWOForPlan(p.id));
@@ -406,6 +589,58 @@ window.genDuePlans=async function(){
   for(const p of due){const who=ga||p.assignedTo||"";
     await ROOT.child("workorders").push().set({id:"PM-"+p.id.slice(-8)+"-"+String(now).slice(-4),source:"保養",equip:p.eqId,equipName:p.eqName,item:p.item,planId:p.id,assignedTo:who,priority:"中",status:who?"已派工":"待派工",due:p.nextDue,createdAt:now});cnt++;}
   toast("已產生 "+cnt+" 張保養工單","ok");admPlan();
+};
+function admHist(){
+  const eqs=eqArr();const selId=window._histEq||(eqs[0]||{}).id||"";
+  window._histEq=selId;
+  const eqReps=repArr().filter(r=>r.equip===selId).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const maint=eqReps.filter(r=>r.source==="保養");
+  const repair=eqReps.filter(r=>r.source==="維修"||r.source==="故障叫修");
+  $("#adminBody").innerHTML=`
+  <div class="card"><h3>設備保養履歷</h3>
+    <div class="row">
+      <select id="hist_eq" onchange="window._histEq=this.value;admHist()">${eqs.map(e=>`<option value="${e.id}" ${e.id===selId?"selected":""}>${e.id}　${esc(e.name)}</option>`).join("")}</select>
+      <button class="sec" onclick="exportHistCSV('${selId}')">匯出履歷 CSV</button>
+    </div>
+  </div>
+  ${selId?`
+  <div class="card"><h3>保養歷程（${maint.length} 筆）</h3>
+    ${maint.length?`<table><tr><th>日期</th><th>項目</th><th>回報人</th><th>工時</th><th>耗材</th><th>進度</th></tr>
+    ${maint.map(r=>`<tr><td>${dStr(r.createdAt)}</td><td style="font-size:12px">${esc(r.source||"")} ${esc(r.note||"")}</td><td>${esc(r.reporter)}</td><td class="n">${r.hours}</td><td style="font-size:11px">${(r.materials||[]).map(m=>m.name+"x"+m.qty).join("、")}</td><td><span class="pill s-${r.progress}">${r.progress}</span></td></tr>`).join("")}</table>`
+    :'<div class="hint">尚無保養紀錄</div>'}
+  </div>
+  <div class="card"><h3>維修歷程（${repair.length} 筆）</h3>
+    ${repair.length?`<table><tr><th>日期</th><th>現象/說明</th><th>回報人</th><th>工時</th><th>耗材</th><th>進度</th></tr>
+    ${repair.map(r=>`<tr><td>${dStr(r.createdAt)}</td><td style="font-size:12px">${esc(r.source||"")} ${esc(r.note||"")}</td><td>${esc(r.reporter)}</td><td class="n">${r.hours}</td><td style="font-size:11px">${(r.materials||[]).map(m=>m.name+"x"+m.qty).join("、")}</td><td><span class="pill s-${r.progress}">${r.progress}</span></td></tr>`).join("")}</table>`
+    :'<div class="hint">尚無維修紀錄</div>'}
+  </div>`:''}`;
+}
+window.admHist=admHist;
+window.exportHistCSV=function(eqid){
+  const eq=EQUIP[eqid]||{};
+  const reps=repArr().filter(r=>r.equip===eqid).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const rows=["日期","類別","項目/說明","回報人","進度","工時","耗材明細","工時成本","耗材成本","總成本"].join(",");
+  const data=reps.map(r=>{const c=costOf(r);const md=(r.materials||[]).map(m=>m.name+"x"+m.qty).join(" / ");
+    return [new Date(r.createdAt||0).toLocaleDateString(),r.source||"",r.note||"",r.reporter,r.progress,r.hours,md,c.labor,c.mat,c.total].map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",");});
+  dlCSV([rows,...data],"設備履歷_"+eqid+"_"+todayStr()+".csv");
+};
+// 工程師端進入設備後可查履歷
+window.viewEngHist=function(eqid){
+  const eq=EQUIP[eqid]||{};
+  const eqReps=repArr().filter(r=>r.equip===eqid).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const maint=eqReps.filter(r=>r.source==="保養");
+  const repair=eqReps.filter(r=>r.source==="維修"||r.source==="故障叫修");
+  APP().innerHTML=engHeader(ENGINEER)+`<main>
+    <div class="card"><div class="big">${esc(eq.name||eqid)}</div><div class="hint">${esc(eqid)}　保養 ${maint.length} 筆 / 維修 ${repair.length} 筆</div>
+      <button class="sec" onclick="exportHistCSV('${eqid}')" style="margin-top:8px">匯出履歷 CSV</button>
+    </div>
+    <div class="card"><h3>保養歷程（${maint.length}）</h3>
+      ${maint.length?`<table><tr><th>日期</th><th>說明</th><th>進度</th><th>工時</th></tr>${maint.map(r=>`<tr><td>${dStr(r.createdAt)}</td><td style="font-size:12px">${esc(r.note||"")}</td><td><span class="pill s-${r.progress}">${r.progress}</span></td><td class="n">${r.hours}</td></tr>`).join("")}</table>`:'<div class="hint">尚無</div>'}
+    </div>
+    <div class="card"><h3>維修歷程（${repair.length}）</h3>
+      ${repair.length?`<table><tr><th>日期</th><th>現象</th><th>進度</th><th>工時</th></tr>${repair.map(r=>`<tr><td>${dStr(r.createdAt)}</td><td style="font-size:12px">${esc(r.note||"")}</td><td><span class="pill s-${r.progress}">${r.progress}</span></td><td class="n">${r.hours}</td></tr>`).join("")}</table>`:'<div class="hint">尚無</div>'}
+    </div>
+    <button class="sec" style="width:100%" onclick="location.hash='#scan=${eqid}'">← 返回報工</button></main>`;
 };
 function admArea(){const eqs=eqArr();
   $("#adminBody").innerHTML=`<div class="card"><h3>叫修區域管理</h3><div class="hint">每區一張 QR；報修時設備依「設備編號末兩碼＝區碼」自動篩選。</div>
