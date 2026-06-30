@@ -160,6 +160,7 @@ let EQUIP={},MAT={},CONF={laborRate:DEFAULT_RATE,pin:DEFAULT_PIN},WOS={},REPS={}
 let adminAuthed=false,invAuthed=false,ENGINEER=sessionStorage.getItem("bfy_eng")||"";
 let SESSION_ROLE="ENG"; // ADM / MGR / ENG — resolved on identity selection
 let ROSTER={}; // maintenance/roster snapshot
+let AUDITLOG=[]; // last 10 entries from maintenance/auditlog
 const $=s=>document.querySelector(s),el=(t,p={})=>Object.assign(document.createElement(t),p),APP=()=>document.getElementById("app");
 function toast(m,k){const t=$("#toast");t.textContent=m;t.className="toast show "+(k||"");setTimeout(()=>t.className="toast",2200);}
 function nf(n){return (Number(n)||0).toLocaleString();}
@@ -177,7 +178,16 @@ async function loadMasters(){
   AREAS=a.val()||{};if(!Object.keys(AREAS).length){DEFAULT_AREAS.forEach(x=>AREAS[x.code]=x);}
   PLANS=pl.val()||{};REQS=rq.val()||{};ROSTER=ro.val()||{};
 }
-function listenLive(){ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});ROOT.child("plans").on("value",s=>{PLANS=s.val()||{};rerender();});ROOT.child("requisitions").on("value",s=>{REQS=s.val()||{};rerender();});}
+function listenLive(){
+  ROOT.child("workorders").on("value",s=>{WOS=s.val()||{};rerender();});
+  ROOT.child("reports").on("value",s=>{REPS=s.val()||{};rerender();});
+  ROOT.child("plans").on("value",s=>{PLANS=s.val()||{};rerender();});
+  ROOT.child("requisitions").on("value",s=>{REQS=s.val()||{};rerender();});
+  ROOT.child("auditlog").orderByChild("ts").limitToLast(10).on("value",s=>{
+    if(s.val())AUDITLOG=Object.values(s.val()).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    rerender();
+  });
+}
 const eqArr=()=>Object.values(EQUIP).sort((a,b)=>a.id<b.id?-1:1);
 const matArr=()=>Object.values(MAT).sort((a,b)=>a.id<b.id?-1:1);
 // 合併資料源：SEED_MAT 為底（有 loc/qty/equip），Firebase 動態更新疊加
@@ -1595,8 +1605,22 @@ function sectionDashboard(){
       </div>
     </div>
     ${myCard}
+    <div class="card dw-wide"><div style="font-size:12px;font-weight:700;color:var(--mut);margin-bottom:8px">本週 KPI（Sprint 2 完整版）</div>
+      <div class="kpi" style="margin:0">
+        <div class="b"><div class="v">${woArr().filter(w=>w.status==="已完成"&&(w.finishAt||0)>=weekStart()).length}</div><div class="l">完工</div></div>
+        <div class="b"><div class="v">${repArr().filter(r=>(r.createdAt||0)>=weekStart()).reduce((s,r)=>s+(+r.hours||0),0).toFixed(1)}</div><div class="l">工時 (h)</div></div>
+        <div class="b"><div class="v">—</div><div class="l">MTTR (h)</div></div>
+      </div>
+    </div>
+    <div class="card dw-wide"><h3>近期動態</h3>
+      ${AUDITLOG.length?AUDITLOG.slice(0,8).map(e=>`<div class="activity-line">${esc(e.action||"")}${e.detail?`：${esc(e.detail)}`:""}
+        <span class="activity-ts"> · ${esc(e.by||"")} · ${new Date(e.ts||0).toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):
+        '<div class="hint">載入中…</div>'}
+      ${AUDITLOG.length?`<button class="sec" style="width:100%;margin-top:8px" onclick="location.hash='#admin'">查看完整記錄 ›</button>`:""}
+    </div>
   </main>`;
 }
+function weekStart(){const d=new Date();const day=d.getDay()||7;d.setDate(d.getDate()-(day-1));d.setHours(0,0,0,0);return d.getTime();}
 
 /* ===== Section: Today's Tasks ===== */
 function sectionTasks(){
